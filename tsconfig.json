@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    /* Output */
+    "target": "ES2019",                        // Good baseline for modern JS
+    "module": "ESNext",                        // Let bundler (Rollup/Vite) handle modules
+    "declaration": true,                       // Emit .d.ts files
+    "declarationDir": "dist/types",   
+    "emitDeclarationOnly": false,
+    "outDir": "dist",                          // Compiled JS output
+    "moduleResolution": "Node",                // Standard resolution
+
+    /* Interop */
+    "esModuleInterop": true,                   // Allow default imports from CJS modules
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    /* Strictness */
+    "strict": true,                            // Enable all strict type-checking
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                      // Faster builds, avoids noise from deps
+
+    /* JSX */
+    "jsx": "react-jsx",                        // Use React 17+ JSX transform
+    "jsxImportSource": "react"                 // Needed for `react-jsx`
+  },
+  "include": ["src"],                          // Only compile your source
+  "exclude": ["node_modules", "dist", "example", "storybook-static"]
+}

@@ -4,6 +4,7 @@ export interface ColorSet {
   main: string;
   hover: string;
   text: string;
+  border: string;
 }
 
 export interface ButtonSizeTokens {

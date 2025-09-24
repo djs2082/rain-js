@@ -34,6 +34,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
    * If true, the button will take up the full width of its container
    */
   fullWidth?: boolean;
+  /**
+   * Click handler for the button
+   */
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 const getColorStyles = (
@@ -48,20 +52,20 @@ const getColorStyles = (
       return {
         backgroundColor: colorConfig.main,
         color: "#fff",
-        borderColor: colorConfig.main,
+        borderColor: colorConfig.border,
         "&:hover": {
           backgroundColor: colorConfig.hover,
-          borderColor: colorConfig.hover
+          borderColor: colorConfig.border
         }
       };
     case "outlined":
       return {
         backgroundColor: "transparent",
         color: colorConfig.text,
-        borderColor: colorConfig.text,
+        borderColor: colorConfig.border,
         "&:hover": {
           backgroundColor: `${colorConfig.text}08`,
-          borderColor: colorConfig.text
+          borderColor: colorConfig.border
         }
       };
     case "text":
@@ -92,6 +96,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     startIcon,
     endIcon,
     fullWidth = false,
+    onClick,
     style,
     className,
     ...rest
@@ -146,6 +151,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         style={baseStyles}
         className={className}
         disabled={disabled}
+        onClick={onClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         {...rest}

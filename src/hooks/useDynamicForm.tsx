@@ -32,7 +32,7 @@ export interface DynamicFormConfig<TValues extends Record<string, any> = Record<
     label?: string;
     onSubmit?: (
       values: TValues,
-      event: React.FormEvent<HTMLFormElement>
+      event?: React.FormEvent<HTMLFormElement>
     ) => void | Promise<void>;
     disabled?: boolean | ((values: TValues) => boolean);
   };
@@ -52,7 +52,7 @@ export function useDynamicForm<
   config: DynamicFormConfig<TValues>,
   options: UseDynamicFormOptions<TValues> = {}
 ) {
-  const { fields, initialValues, submit, onChange } = config;
+  const { fields, initialValues, submit: submitCfg, onChange } = config;
   const {
     InputComponent = DefaultInput,
     ButtonComponent = DefaultButton,
@@ -130,16 +130,33 @@ export function useDynamicForm<
       setErrors(nextErrors);
       const hasError = Object.values(nextErrors).some(Boolean);
       if (!hasError) {
-        await submit?.onSubmit?.(values, e);
+        await submitCfg?.onSubmit?.(values, e);
       }
     },
-    [fields, submit, values]
+    [fields, submitCfg, values]
   );
 
+  const submit = React.useCallback(async () => {
+    const nextErrors: Record<string, string | undefined> = {};
+    for (const f of fields) {
+      if (f.validate) {
+        const msg = f.validate((values as any)[f.name], values);
+        if (msg) nextErrors[f.name as string] = msg;
+      }
+    }
+    setErrors(nextErrors);
+    const hasError = Object.values(nextErrors).some(Boolean);
+    if (!hasError) {
+      await submitCfg?.onSubmit?.(values);
+      return { ok: true as const };
+    }
+    return { ok: false as const, errors: nextErrors };
+  }, [fields, submitCfg, values]);
+
   const submitDisabled = React.useMemo(() => {
-    const d = submit?.disabled;
+    const d = submitCfg?.disabled;
     return typeof d === "function" ? d(values) : !!d;
-  }, [submit, values]);
+  }, [submitCfg, values]);
 
   const form = (
     <form onSubmit={handleSubmit} {...formProps}>
@@ -165,12 +182,12 @@ export function useDynamicForm<
         })}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <ButtonComponent type="submit" disabled={submitDisabled}>
-            {submit?.label ?? "Submit"}
+            {submitCfg?.label ?? "Submit"}
           </ButtonComponent>
         </div>
       </div>
     </form>
   );
 
-  return { form, values, setValue, setValues, errors, handleSubmit } as const;
+  return { form, values, setValue, setValues, errors, handleSubmit, submit } as const;
 }

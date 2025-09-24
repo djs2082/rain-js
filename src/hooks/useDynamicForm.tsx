@@ -48,6 +48,7 @@ export interface UseDynamicFormOptions<TValues extends Record<string, any> = Rec
   ButtonComponent?: React.ComponentType<ButtonProps>;
   zustandStore?: MinimalZustandStore<TValues>;
   formProps?: React.FormHTMLAttributes<HTMLFormElement>;
+  fieldsGroupStyle?: { key: string; value: any };
 }
 
 export function useDynamicForm<
@@ -61,7 +62,8 @@ export function useDynamicForm<
     InputComponent = DefaultInput,
     ButtonComponent = DefaultButton,
     zustandStore,
-    formProps
+    formProps,
+    fieldsGroupStyle,
   } = options;
 
   const { validate: runValidator } = useFormFieldValidator();
@@ -174,7 +176,7 @@ export function useDynamicForm<
 
   const form = (
     <form onSubmit={handleSubmit} {...formProps}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, ...fieldsGroupStyle }}>
         {fields.map(f => {
           const val = (values as any)[f.name];
           const err = errors[f.name as string];

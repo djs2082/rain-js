@@ -1,4 +1,5 @@
 import React from "react";
+import { useButtonTheme } from "../theme/provider";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
@@ -35,17 +36,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
 }
 
-const getColorStyles = (color: ButtonProps["color"], variant: ButtonProps["variant"]) => {
-  const colors = {
-    primary: { main: "#1976d2", hover: "#1565c0", text: "#1976d2" },
-    secondary: { main: "#9c27b0", hover: "#7b1fa2", text: "#9c27b0" },
-    success: { main: "#2e7d32", hover: "#1b5e20", text: "#2e7d32" },
-    error: { main: "#d32f2f", hover: "#c62828", text: "#d32f2f" },
-    warning: { main: "#ed6c02", hover: "#e65100", text: "#ed6c02" },
-    info: { main: "#0288d1", hover: "#0277bd", text: "#0288d1" }
-  };
-
-  const colorConfig = colors[color || "primary"];
+const getColorStyles = (
+  palette: ReturnType<typeof useButtonTheme>["colors"],
+  color: ButtonProps["color"],
+  variant: ButtonProps["variant"]
+) => {
+  const colorConfig = palette[color || "primary"];
 
   switch (variant) {
     case "contained":
@@ -81,29 +77,10 @@ const getColorStyles = (color: ButtonProps["color"], variant: ButtonProps["varia
   }
 };
 
-const getSizeStyles = (size: ButtonProps["size"]) => {
-  switch (size) {
-    case "small":
-      return {
-        padding: "4px 10px",
-        fontSize: "0.8125rem",
-        minHeight: "30px"
-      };
-    case "large":
-      return {
-        padding: "8px 22px",
-        fontSize: "0.9375rem",
-        minHeight: "42px"
-      };
-    case "medium":
-    default:
-      return {
-        padding: "6px 16px",
-        fontSize: "0.875rem",
-        minHeight: "36px"
-      };
-  }
-};
+const getSizeStyles = (
+  sizes: ReturnType<typeof useButtonTheme>["sizes"],
+  size: ButtonProps["size"]
+) => sizes[size || "medium"]; 
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   function Button({
@@ -119,21 +96,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     className,
     ...rest
   }, ref) {
-    const colorStyles = getColorStyles(color, variant);
-    const sizeStyles = getSizeStyles(size);
+    const theme = useButtonTheme();
+    const colorStyles = getColorStyles(theme.colors, color, variant);
+    const sizeStyles = getSizeStyles(theme.sizes, size);
 
     const baseStyles: React.CSSProperties = {
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      fontWeight: 500,
+  fontFamily: theme.fontFamily,
+  fontWeight: theme.fontWeight,
       lineHeight: 1.75,
-      letterSpacing: "0.02857em",
-      textTransform: "uppercase",
+  letterSpacing: theme.letterSpacing,
+  textTransform: theme.textTransform as React.CSSProperties["textTransform"],
       border: "1px solid",
-      borderRadius: "4px",
+  borderRadius: theme.borderRadius,
       cursor: disabled ? "default" : "pointer",
       transition: "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
       width: fullWidth ? "100%" : "auto",

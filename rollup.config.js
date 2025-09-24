@@ -27,8 +27,6 @@ export default [
       "react",
       "react-dom",
       "react/jsx-runtime",
-      "@mui/material",
-      "@mui/material/Button",
       "@emotion/react",
       "@emotion/styled"
     ], // don’t bundle these
@@ -49,8 +47,6 @@ export default [
       "react",
       "react-dom",
       "react/jsx-runtime",
-      "@mui/material",
-      "@mui/material/Button",
       "@emotion/react",
       "@emotion/styled",
       "clsx",

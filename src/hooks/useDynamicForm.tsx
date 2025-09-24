@@ -174,7 +174,7 @@ export function useDynamicForm<
 
   const form = (
     <form onSubmit={handleSubmit} {...formProps}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {fields.map(f => {
           const val = (values as any)[f.name];
           const err = errors[f.name as string];

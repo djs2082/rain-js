@@ -406,7 +406,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           </span>
         )}
       </div>
-      <div>Hello world</div>
     </div>
   );
 });

@@ -180,11 +180,6 @@ export function useDynamicForm<
             />
           );
         })}
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <ButtonComponent type="submit" disabled={submitDisabled}>
-            {submitCfg?.label ?? "Submit"}
-          </ButtonComponent>
-        </div>
       </div>
     </form>
   );

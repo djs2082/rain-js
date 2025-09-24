@@ -1,5 +1,6 @@
 // Hooks
 export * from "./hooks/useDebounce";
+export * from "./hooks/useDynamicForm";
 
 // Components
 export * from "./components/Button";

@@ -3,6 +3,7 @@ import type { InputProps } from "../components/Input";
 import { Input as DefaultInput } from "../components/Input";
 import type { ButtonProps } from "../components/Button";
 import { Button as DefaultButton } from "../components/Button";
+import { useFormFieldValidator, type ValidatorKey } from "./formFieldValidator";
 
 export type MinimalZustandStore<T extends Record<string, any>> = {
   getState?: () => T;
@@ -22,7 +23,10 @@ export type DynamicFieldConfig<TValues extends Record<string, any> = Record<stri
     InputProps,
     "value" | "onChange" | "type" | "label" | "defaultValue" | "id"
   >;
-  validate?: (value: any, values: TValues) => string | undefined;
+  // Either provide a custom validator function OR a list of validator keys
+  validate?: ((value: any, values: TValues) => string | undefined) | ValidatorKey[];
+  // Optional alias in case you prefer a dedicated key list
+  validators?: ValidatorKey[];
 };
 
 export interface DynamicFormConfig<TValues extends Record<string, any> = Record<string, any>> {
@@ -59,6 +63,23 @@ export function useDynamicForm<
     zustandStore,
     formProps
   } = options;
+
+  const { validate: runValidator } = useFormFieldValidator();
+
+  const computeFieldError = React.useCallback((f: DynamicFieldConfig<TValues>, value: any, allValues: TValues) => {
+    if (Array.isArray(f.validate) || Array.isArray(f.validators)) {
+      const keys = (Array.isArray(f.validate) ? f.validate : []).concat(Array.isArray(f.validators) ? f.validators! : []);
+      for (const key of keys) {
+        const res = runValidator(key, value);
+        if (res.fail) return res.message || "Invalid";
+      }
+      return undefined;
+    }
+    if (typeof f.validate === "function") {
+      return f.validate(value, allValues);
+    }
+    return undefined;
+  }, [runValidator]);
 
   const initial = React.useMemo(() => {
     const base: Record<string, any> = {};
@@ -99,15 +120,12 @@ export function useDynamicForm<
       });
 
       const field = fields.find(f => f.name === name);
-      const validateFn = field?.validate;
-      if (validateFn) {
-        setErrors(prev => ({
-          ...prev,
-          [name]: validateFn(value, { ...values, [name]: value } as TValues)
-        }));
+      if (field) {
+        const msg = computeFieldError(field, value, { ...values, [name]: value } as TValues);
+        setErrors(prev => ({ ...prev, [name]: msg }));
       }
     },
-    [fields, onChange, zustandStore, values]
+    [fields, onChange, zustandStore, values, computeFieldError]
   );
 
   const handleInputChange = React.useCallback(
@@ -122,10 +140,8 @@ export function useDynamicForm<
       e.preventDefault();
       const nextErrors: Record<string, string | undefined> = {};
       for (const f of fields) {
-        if (f.validate) {
-          const msg = f.validate((values as any)[f.name], values);
-          if (msg) nextErrors[f.name as string] = msg;
-        }
+        const msg = computeFieldError(f, (values as any)[f.name], values);
+        if (msg) nextErrors[f.name as string] = msg;
       }
       setErrors(nextErrors);
       const hasError = Object.values(nextErrors).some(Boolean);
@@ -139,10 +155,8 @@ export function useDynamicForm<
   const submit = React.useCallback(async () => {
     const nextErrors: Record<string, string | undefined> = {};
     for (const f of fields) {
-      if (f.validate) {
-        const msg = f.validate((values as any)[f.name], values);
-        if (msg) nextErrors[f.name as string] = msg;
-      }
+      const msg = computeFieldError(f, (values as any)[f.name], values);
+      if (msg) nextErrors[f.name as string] = msg;
     }
     setErrors(nextErrors);
     const hasError = Object.values(nextErrors).some(Boolean);

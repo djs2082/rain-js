@@ -239,7 +239,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     flexDirection: "column",
     gap: floatingLabel ? 6 : 4,
     width: fullWidth ? "100%" : "auto",
-    fontFamily: theme.fontFamily
+    fontFamily: theme.fontFamily,
+    alignItems: "stretch"
   };
 
   const labelStyle: React.CSSProperties = floatingLabel
@@ -289,7 +290,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       };
       break;
     case "outlined":
-    default:
       inputStyle = {
         background: "transparent",
         border: `${theme.borderWidth} solid ${c.border}`
@@ -329,7 +329,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   const helperStyle: React.CSSProperties = {
     fontSize: s.labelFontSize,
-    color: error ? (theme.colors.error.helper || theme.colors.error.main) : theme.placeholderColor
+    color: error ? (theme.colors.error.helper || theme.colors.error.main) : theme.placeholderColor,
+    display: "block",
+    textAlign: "left",
+    marginTop: 2
   };
 
   return (
@@ -385,8 +388,25 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             )}
           </span>
         )}
+        {helperText && (
+          <span
+            style={{
+              position: "absolute",
+              left: startAdornment ? 36 : 12,
+              top: `calc(${s.height} + 2px)`,
+              zIndex: 3,
+              pointerEvents: "none",
+              background: "transparent",
+              fontSize: s.labelFontSize,
+              color: error ? (theme.colors.error.helper || theme.colors.error.main) : theme.placeholderColor,
+              textAlign: "left"
+            }}
+          >
+            {helperText}
+          </span>
+        )}
       </div>
-      {helperText && <span style={helperStyle}>{helperText}</span>}
+      <div>Hello world</div>
     </div>
   );
 });

@@ -12,6 +12,24 @@ const config: StorybookConfig = {
   ],
   docs: {
     autodocs: true
+  },
+  async viteFinal(config) {
+    // Ensure a single React instance and proper pre-bundling
+    config.resolve = config.resolve || {};
+    config.resolve.dedupe = [
+      ...(config.resolve.dedupe || []),
+      "react",
+      "react-dom",
+      "react/jsx-runtime"
+    ];
+    config.optimizeDeps = config.optimizeDeps || {};
+    config.optimizeDeps.include = [
+      ...(config.optimizeDeps.include || []),
+      "react",
+      "react-dom",
+      "react/jsx-runtime"
+    ];
+    return config;
   }
 };
 

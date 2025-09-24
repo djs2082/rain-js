@@ -51,7 +51,7 @@ const getColorStyles = (
     case "contained":
       return {
         backgroundColor: colorConfig.main,
-        color: "#fff",
+        color: colorConfig.text || "#fff",
         borderColor: colorConfig.border,
         "&:hover": {
           backgroundColor: colorConfig.hover,

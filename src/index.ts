@@ -14,6 +14,8 @@ export { default as Typography } from "./components/Typography";
 import TypographyDefault from "./components/Typography";
 export default TypographyDefault;
 export * from "./components/ToastProvider";
+export * from "./components/Card";
+export * from "./components/Loader";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";
@@ -33,3 +35,5 @@ export { TypographyThemeProvider } from "./theme/typographyProvider";
 export type { TypographyTheme, TypographyThemeOverride } from "./theme/typographyTypes";
 export { ToastThemeProvider } from "./theme/toastProvider";
 export type { ToastTheme, ToastThemeOverride } from "./theme/toastTypes";
+export { CardThemeProvider } from "./theme/cardProvider";
+export type { CardTheme, CardThemeOverride } from "./theme/cardTypes";

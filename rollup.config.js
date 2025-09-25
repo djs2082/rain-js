@@ -3,6 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
 import postcss from "rollup-plugin-postcss";
+import json from "@rollup/plugin-json";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
@@ -28,11 +29,13 @@ export default [
       "react-dom",
       "react/jsx-runtime",
       "@emotion/react",
-      "@emotion/styled"
+      "@emotion/styled",
+      "axios",
     ], // don’t bundle these
     plugins: [
-      resolve(),
+      resolve({ browser: true, preferBuiltins: false }),
       commonjs(),
+      json(),
       postcss({ extract: true }),
       typescript({ tsconfig: "./tsconfig.json" })
     ]
@@ -50,7 +53,8 @@ export default [
       "@emotion/react",
       "@emotion/styled",
       "clsx",
-      "tailwind-merge"
+      "tailwind-merge",
+      "axios",
     ],
     plugins: [dts({ respectExternal: true })],
   }

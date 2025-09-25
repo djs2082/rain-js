@@ -16,6 +16,7 @@ export default TypographyDefault;
 export * from "./components/ToastProvider";
 export * from "./components/Card";
 export * from "./components/Loader";
+export * from "./http/httpClient";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";

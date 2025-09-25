@@ -9,6 +9,11 @@ export * from "./components/Input";
 export * from "./components/Modal";
 export * from "./components/PageLayout";
 export * from "./components/NavBar";
+export * from "./components/Typography";
+export { default as Typography } from "./components/Typography";
+import TypographyDefault from "./components/Typography";
+export default TypographyDefault;
+export * from "./components/ToastProvider";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";
@@ -24,3 +29,7 @@ export { PageLayoutThemeProvider } from "./theme/pageLayoutProvider";
 export type { PageLayoutTheme, PageLayoutThemeOverride } from "./theme/pageLayoutTypes";
 export { NavBarThemeProvider } from "./theme/navBarProvider";
 export type { NavBarTheme, NavBarThemeOverride } from "./theme/navBarTypes";
+export { TypographyThemeProvider } from "./theme/typographyProvider";
+export type { TypographyTheme, TypographyThemeOverride } from "./theme/typographyTypes";
+export { ToastThemeProvider } from "./theme/toastProvider";
+export type { ToastTheme, ToastThemeOverride } from "./theme/toastTypes";

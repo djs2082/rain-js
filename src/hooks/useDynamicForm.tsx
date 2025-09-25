@@ -48,7 +48,9 @@ export interface UseDynamicFormOptions<TValues extends Record<string, any> = Rec
   ButtonComponent?: React.ComponentType<ButtonProps>;
   zustandStore?: MinimalZustandStore<TValues>;
   formProps?: React.FormHTMLAttributes<HTMLFormElement>;
-  fieldsGroupStyle?: { key: string; value: any };
+  // Style/class applied to the wrapper that groups all fields
+  fieldsGroupStyle?: React.CSSProperties;
+  fieldsGroupClassName?: string;
 }
 
 export function useDynamicForm<
@@ -64,6 +66,7 @@ export function useDynamicForm<
     zustandStore,
     formProps,
     fieldsGroupStyle,
+    fieldsGroupClassName,
   } = options;
 
   const { validate: runValidator } = useFormFieldValidator();
@@ -120,14 +123,8 @@ export function useDynamicForm<
         onChange?.(next);
         return next;
       });
-
-      const field = fields.find(f => f.name === name);
-      if (field) {
-        const msg = computeFieldError(field, value, { ...values, [name]: value } as TValues);
-        setErrors(prev => ({ ...prev, [name]: msg }));
-      }
     },
-    [fields, onChange, zustandStore, values, computeFieldError]
+    [onChange, zustandStore]
   );
 
   const handleInputChange = React.useCallback(
@@ -176,7 +173,7 @@ export function useDynamicForm<
 
   const form = (
     <form onSubmit={handleSubmit} {...formProps}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 20, ...fieldsGroupStyle }}>
+      <div className={fieldsGroupClassName} style={{ display: "flex", flexDirection: "column", gap: 28, ...fieldsGroupStyle }}>
         {fields.map(f => {
           const val = (values as any)[f.name];
           const err = errors[f.name as string];

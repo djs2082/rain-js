@@ -5,7 +5,11 @@ const config: StorybookConfig = {
     name: "@storybook/react-vite",
     options: {}
   },
-  stories: ["../src/**/*.stories.@(ts|tsx)"],
+  stories: [
+    "../src/**/*.stories.@(ts|tsx)"
+    // MDX files excluded to prevent parsing issues
+    // "../src/**/*.mdx" 
+  ],
   addons: [
     "@storybook/addon-essentials",
     "@storybook/addon-interactions"

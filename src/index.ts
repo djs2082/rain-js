@@ -7,6 +7,8 @@ export * from "./hooks/formFieldValidator";
 export * from "./components/Button";
 export * from "./components/Input";
 export * from "./components/Modal";
+export * from "./components/PageLayout";
+export * from "./components/NavBar";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";
@@ -18,3 +20,7 @@ export { InputThemeProvider } from "./theme/inputProvider";
 export type { InputTheme, InputColorKey } from "./theme/inputTypes";
 export { ModalThemeProvider } from "./theme/modalProvider";
 export type { ModalTheme } from "./theme/modalTypes";
+export { PageLayoutThemeProvider } from "./theme/pageLayoutProvider";
+export type { PageLayoutTheme, PageLayoutThemeOverride } from "./theme/pageLayoutTypes";
+export { NavBarThemeProvider } from "./theme/navBarProvider";
+export type { NavBarTheme, NavBarThemeOverride } from "./theme/navBarTypes";

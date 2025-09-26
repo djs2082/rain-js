@@ -42,3 +42,8 @@ export type { CardTheme, CardThemeOverride } from "./theme/cardTypes";
 // Responsive context
 export { ResponsiveProvider, useResponsive } from "./context/ResponsiveContext";
 export type { ResponsiveContextType } from "./context/ResponsiveContext";
+
+// Icon
+export { Icon } from "./components/Icon";
+export { IconThemeProvider } from "./theme/iconProvider";
+export type { IconTheme } from "./theme/iconTypes";

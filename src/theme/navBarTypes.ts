@@ -26,6 +26,8 @@ export interface NavBarTheme {
   menu: {
     gap: string;
     mobileBackground?: string;
+    /** Border between navbar and mobile menu. CSS value for border (e.g. '1px solid #e5e7eb') */
+    mobileMenuBorder?: string;
   };
   hamburger: {
     color: string;

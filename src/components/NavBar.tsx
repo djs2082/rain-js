@@ -48,6 +48,9 @@ export function NavBar({
   const [open, setOpen] = React.useState(false);
   const navRef = React.useRef<HTMLElement>(null);
   const bp = collapseAt ?? theme.breakpoint;
+  // Normalize right prop into an array of children so we can render its individual
+  // child nodes stacked in mobile menu (preserve order)
+  const rightChildren = React.Children.toArray(right) as React.ReactNode[];
   
   // Handle mobile sticky behavior
   React.useEffect(() => {
@@ -218,7 +221,7 @@ export function NavBar({
         </div>
 
         {/* Right: actions or hamburger */}
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <div className="nav-right" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           {/* Mobile hamburger toggle */}
           <button
             aria-label="Toggle menu"
@@ -235,8 +238,11 @@ export function NavBar({
           </button>
 
           {/* Right actions (desktop first) */}
-          <div className="nav-right" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-            {right}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            {/* Desktop-only right area (hidden on mobile via CSS) */}
+            <div className="nav-right-desktop" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              {right}
+            </div>
           </div>
         </div>
       </div>
@@ -254,6 +260,16 @@ export function NavBar({
             borderBottom: theme.container.borderBottom,
           }}
         >
+
+          {/* Themed border between navbar and mobile menu. Rendered as a separate element so it can be customized via theme. */}
+          <div
+            className="nav-mobile-border"
+            style={{
+              width: "100%",
+              borderTop: theme.menu.mobileMenuBorder ?? "1px solid rgba(0,0,0,0.08)",
+              marginTop: 0,
+            }}
+          />
           {links.map(item => {
             const Comp: any = item.href ? "a" : "button";
             const base = { ...linkBase } as React.CSSProperties;
@@ -279,6 +295,20 @@ export function NavBar({
               </Comp>
             );
           })}
+
+          {/* Place right-side actions inside the mobile menu stacked vertically */}
+          {rightChildren.length > 0 && (
+            <div
+              className="nav-right-mobile"
+              style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}
+            >
+              {rightChildren.map((child, idx) => (
+                <div key={idx} style={{ width: "100%" }}>
+                  {child}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -289,11 +319,16 @@ export function NavBar({
             .nav-hamburger { display: none !important; }
             .nav-mobile { display: none !important; }
             .nav-links-desktop { display: flex; }
+            .nav-right-desktop { display: inline-flex; }
           }
           @media (max-width: ${bp - 1}px) {
             .nav-hamburger { display: inline-flex; }
             .nav-desktop { display: none; }
             .nav-links-desktop { display: none; }
+            /* Hide header right area on mobile; actions moved into mobile drawer */
+            .nav-right-desktop { display: none !important; }
+            .nav-right { /* keep hamburger position */ display: inline-flex; }
+            .nav-mobile .nav-right-mobile { display: flex; flex-direction: column; }
           }
           .nav-links-desktop a:hover, .nav-links-desktop button:hover {
             color: ${theme.link.hoverColor};

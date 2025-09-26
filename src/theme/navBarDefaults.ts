@@ -26,6 +26,7 @@ export const defaultNavBarTheme: NavBarTheme = {
   menu: {
     gap: "8px",
     mobileBackground: "#ffffff",
+    mobileMenuBorder: "1px solid #e5e7eb",
   },
   hamburger: {
     color: "#111827",

@@ -38,3 +38,7 @@ export { ToastThemeProvider } from "./theme/toastProvider";
 export type { ToastTheme, ToastThemeOverride } from "./theme/toastTypes";
 export { CardThemeProvider } from "./theme/cardProvider";
 export type { CardTheme, CardThemeOverride } from "./theme/cardTypes";
+
+// Responsive context
+export { ResponsiveProvider, useResponsive } from "./context/ResponsiveContext";
+export type { ResponsiveContextType } from "./context/ResponsiveContext";

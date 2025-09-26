@@ -19,8 +19,10 @@ export interface NavBarProps {
   links?: NavLinkItem[];
   /** Collapses links under hamburger below this width (px). Defaults to theme.breakpoint. */
   collapseAt?: number;
-  /** If true, NavBar sticks to the top (useful with PageLayout). */
+  /** If true, NavBar sticks to the top (useful with PageLayout). For reliable mobile stickiness, consider stickyMode="fixed". */
   sticky?: boolean;
+  /** Sticky strategy: CSS "sticky" (default) or "fixed" (more reliable on mobile or when ancestor has overflow properties). */
+  stickyMode?: "sticky" | "fixed";
   /** Custom height; defaults to theme.container.height. */
   height?: string | number;
   /** Optional className for root. */
@@ -37,18 +39,95 @@ export function NavBar({
   links = [],
   collapseAt,
   sticky = false,
+  stickyMode = "sticky",
   height,
   className,
   style,
 }: NavBarProps) {
   const theme = useNavBarTheme();
   const [open, setOpen] = React.useState(false);
+  const navRef = React.useRef<HTMLElement>(null);
   const bp = collapseAt ?? theme.breakpoint;
+  
+  // Handle mobile sticky behavior
+  React.useEffect(() => {
+    if (!sticky || !navRef.current) return;
+    
+    // Function to handle scroll behavior
+    const handleScroll = () => {
+      const nav = navRef.current;
+      if (!nav) return;
+      
+      const isMobile = window.innerWidth < bp;
+      
+      // If on mobile device or small screen, prioritize fixed positioning for more reliable stickiness
+      if (isMobile) {
+        // Use fixed positioning for mobile as it's more reliable
+        nav.style.position = "fixed";
+        nav.style.top = "0";
+        nav.style.left = "0";
+        nav.style.right = "0";
+        nav.style.width = "100%";
+        nav.style.zIndex = `${(theme.container.zIndex ?? 200) + 50}`;
+        
+        // When using fixed positioning, we need to add padding to body to prevent content jump
+        if (stickyMode === "fixed") {
+          document.body.style.paddingTop = nav.offsetHeight + "px";
+        }
+      } else if (stickyMode === "fixed") {
+        // For desktop fixed mode
+        nav.style.position = "fixed";
+        nav.style.top = "0";
+        nav.style.left = "0";
+        nav.style.right = "0";
+        nav.style.width = "100%";
+        document.body.style.paddingTop = nav.offsetHeight + "px";
+      } else {
+        // For desktop sticky mode (default)
+        nav.style.position = "sticky";
+        nav.style.top = "0";
+        nav.style.width = "100%";
+        document.body.style.paddingTop = "0px";
+      }
+    };
+    
+    // Setup
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      document.body.style.paddingTop = "0px"; // Reset body padding
+    };
+  }, [sticky, stickyMode, bp, theme.container.zIndex]);
 
+  // Determine effective positioning when sticky requested.
+  // Note: For mobile compatibility issues with sticky positioning:
+  // - Use stickyMode="fixed" when inside containers with overflow properties
+  // - Fixed mode is more reliable on mobile but removes the element from normal flow
+  // - Sticky mode works in standard scenarios but may fail in complex layouts on mobile
+  
+  // Initial position strategy - will be enhanced by the useEffect for client-side rendering
+  const effectivePosition: React.CSSProperties["position"] = !sticky
+    ? "relative"
+    : stickyMode === "fixed"
+    ? "fixed"
+    : "sticky"; // default strategy
+
+  // The key issues with mobile sticky:
+  // 1. Need to be positioned at the very top of viewport (fixed ensures this)
+  // 2. Need explicit width:100% and left:0,right:0 (especially for fixed)
+  // 3. Need increased z-index to appear above other elements
   const rootStyles: React.CSSProperties = {
-    position: sticky ? "sticky" : "relative",
+    position: effectivePosition,
     top: sticky ? 0 : undefined,
-    zIndex: theme.container.zIndex ?? 200,
+    left: sticky ? 0 : undefined,
+    right: sticky ? 0 : undefined,
+    width: sticky ? "100%" : undefined, 
+    zIndex: (theme.container.zIndex ?? 200) + (sticky ? (stickyMode === "fixed" ? 50 : 20) : 0),
     background: theme.container.background,
     color: theme.container.color,
     borderBottom: theme.container.borderBottom,
@@ -104,7 +183,7 @@ export function NavBar({
 
   // Responsive: render two menus; desktop visible above breakpoint, mobile below
   return (
-    <nav style={{ ...rootStyles, ...style }} className={className}>
+    <nav ref={navRef} style={{ ...rootStyles, ...style }} className={className}>
       <div style={innerStyles}>
         {/* Left: brand */}
         <div style={brandStyles}>{brand}</div>

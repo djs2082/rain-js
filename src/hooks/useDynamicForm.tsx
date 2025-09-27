@@ -19,6 +19,8 @@ export type DynamicFieldConfig<TValues extends Record<string, any> = Record<stri
   type?: InputProps["type"];
   placeholder?: string;
   defaultValue?: any;
+  /** mark this field as required - will be forwarded to the Input component */
+  required?: boolean;
   inputProps?: Omit<
     InputProps,
     "value" | "onChange" | "type" | "label" | "defaultValue" | "id"
@@ -208,6 +210,7 @@ export function useDynamicForm<
             <InputComponent
               key={f.name as string}
               label={f.label}
+              required={f.required}
               value={val}
               onChange={handleInputChange(f.name as any)}
               type={f.type as any}

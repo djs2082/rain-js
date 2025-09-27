@@ -9,6 +9,15 @@ export interface InputColorSet {
   border: string;
   focus: string; // focus ring/border color
   helper?: string; // helper/error text color
+  // Optional per-color overrides for other theme tokens. If present these
+  // will override the top-level theme values for that color.
+  borderRadius?: string;
+  fontFamily?: string;
+  labelColor?: string;
+  placeholderColor?: string;
+  background?: string;
+  borderWidth?: string;
+  labelBackground?: string;
 }
 
 export interface InputSizeTokens {

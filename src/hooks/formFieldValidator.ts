@@ -17,13 +17,13 @@ export type ValidationResult = {
 
 export type ValidationRule = (value: unknown, options?: Record<string, any>) => ValidationResult;
 
-function emailRule(value: unknown): ValidationResult {
+export function emailRule(value: unknown): ValidationResult {
   const v = (value ?? "").toString().trim();
   const success = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   return { key: "validate_email", success, fail: !success, message: success ? undefined : "Invalid email" };
 }
 
-function mobileRule(value: unknown, options?: { minDigits?: number; maxDigits?: number; pattern?: RegExp }): ValidationResult {
+export function mobileRule(value: unknown, options?: { minDigits?: number; maxDigits?: number; pattern?: RegExp }): ValidationResult {
   const digits = (value ?? "").toString().replace(/\D/g, "");
   const minD = options?.minDigits ?? 10;
   const maxD = options?.maxDigits ?? 15;
@@ -33,7 +33,7 @@ function mobileRule(value: unknown, options?: { minDigits?: number; maxDigits?: 
   return { key: "validate_mobile", success, fail: !success, message: success ? undefined : "Invalid mobile number" };
 }
 
-function passwordRule(
+export function passwordRule(
   value: unknown,
   options?: { minLength?: number; requireUpper?: boolean; requireLower?: boolean; requireNumber?: boolean; requireSpecial?: boolean }
 ): ValidationResult {
@@ -58,13 +58,13 @@ function passwordRule(
   return { key: "validate_password", success, fail: !success, message: success ? undefined : firstFail?.msg };
 }
 
-function requiredRule(value: unknown): ValidationResult {
+export function requiredRule(value: unknown): ValidationResult {
   const v = value as any;
   const success = !(v === undefined || v === null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0));
   return { key: "validate_required", success, fail: !success, message: success ? undefined : "This field is required" };
 }
 
-function urlRule(value: unknown): ValidationResult {
+export function urlRule(value: unknown): ValidationResult {
   const v = (value ?? "").toString().trim();
   let success = false;
   if (!v) success = false;
@@ -81,7 +81,7 @@ function urlRule(value: unknown): ValidationResult {
   return { key: "validate_url", success, fail: !success, message: success ? undefined : "Invalid URL" };
 }
 
-const defaultRules: Record<string, ValidationRule> = {
+export const defaultRules: Record<string, ValidationRule> = {
   validate_email: emailRule,
   validate_mobile: mobileRule,
   validate_password: passwordRule,

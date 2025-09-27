@@ -5,6 +5,8 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   label?: string;
   helperText?: string;
   error?: boolean;
+  /** mark field as required and show an asterisk next to the label */
+  required?: boolean;
   fullWidth?: boolean;
   color?: "primary" | "secondary" | "success" | "error" | "warning" | "info";
   size?: "small" | "medium" | "large";
@@ -32,6 +34,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     showPasswordToggle,
     format = "none",
     telPattern,
+      required = false,
     style,
     className,
     id,
@@ -46,7 +49,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const isPassword = (rest.type || "text") === "password";
   const allowToggle = isPassword && (showPasswordToggle ?? true);
   const [showPwd, setShowPwd] = useState(false);
-
   const [focused, setFocused] = useState(false);
   const [uncontrolledVal, setUncontrolledVal] = useState<string>(
     typeof rest.defaultValue === "string" ? rest.defaultValue : ""
@@ -362,6 +364,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           {...rest}
+          required={required}
           type={inputType}
           value={isControlled ? rest.value : undefined}
           defaultValue={!isControlled ? uncontrolledVal : undefined}

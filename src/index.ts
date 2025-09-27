@@ -14,7 +14,9 @@ export * from "./components/Icon"
 export { default as Typography } from "./components/Typography";
 import TypographyDefault from "./components/Typography";
 export default TypographyDefault;
-export * from "./components/ToastProvider";
+// Toast UI components (consumer-managed)
+export * from "./components/Toast";
+export * from "./components/ToastContainer";
 export * from "./components/Card";
 export * from "./components/Loader";
 export * from "./http/httpClient";

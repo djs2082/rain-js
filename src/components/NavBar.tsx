@@ -29,6 +29,8 @@ export interface NavBarProps {
   className?: string;
   /** Optional style override for root. */
   style?: React.CSSProperties;
+  /** If true, clicking outside the open mobile menu will close it. Defaults to true. */
+  closeOnOutsideClick?: boolean;
 }
 
 const toCss = (v?: string | number) => (typeof v === "number" ? `${v}px` : v);
@@ -43,9 +45,12 @@ export function NavBar({
   height,
   className,
   style,
+  closeOnOutsideClick = true,
 }: NavBarProps) {
   const theme = useNavBarTheme();
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  const [animateIn, setAnimateIn] = React.useState(false);
   const navRef = React.useRef<HTMLElement>(null);
   const bp = collapseAt ?? theme.breakpoint;
   // Normalize right prop into an array of children so we can render its individual
@@ -106,6 +111,51 @@ export function NavBar({
       document.body.style.paddingTop = "0px"; // Reset body padding
     };
   }, [sticky, stickyMode, bp, theme.container.zIndex]);
+
+  // Manage dropdown mount/animation lifecycle so we can animate open/close
+  const animationDuration = 180; // ms
+  const animTimeoutRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    if (open) {
+      // mount then animate in
+      setMounted(true);
+      // next frame toggle animateIn
+      window.requestAnimationFrame(() => setAnimateIn(true));
+    } else {
+      // animate out then unmount after duration
+      setAnimateIn(false);
+      if (animTimeoutRef.current) {
+        window.clearTimeout(animTimeoutRef.current);
+      }
+      animTimeoutRef.current = window.setTimeout(() => {
+        setMounted(false);
+      }, animationDuration + 30);
+    }
+
+    return () => {
+      if (animTimeoutRef.current) {
+        window.clearTimeout(animTimeoutRef.current);
+        animTimeoutRef.current = null;
+      }
+    };
+  }, [open]);
+
+  // Click-outside to close (mobile dropdown). Uses pointerdown for better UX.
+  React.useEffect(() => {
+    if (!mounted || !closeOnOutsideClick) return;
+
+    const handlePointer = (ev: PointerEvent | MouseEvent) => {
+      const target = ev.target as Node | null;
+      if (!navRef.current) return;
+      if (target && !navRef.current.contains(target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointer);
+    return () => document.removeEventListener("pointerdown", handlePointer);
+  }, [mounted, closeOnOutsideClick]);
 
   // Determine effective positioning when sticky requested.
   // Note: For mobile compatibility issues with sticky positioning:
@@ -248,67 +298,86 @@ export function NavBar({
       </div>
 
       {/* Mobile menu drawer (simple inline) */}
-      {open && (
+      {mounted && (
+        // Compact dropdown anchored to the right (hamburger). Position is absolute relative to the nav element.
         <div
-          className="nav-mobile"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: theme.menu.gap,
-            padding: `8px ${theme.container.paddingX}`,
-            background: theme.menu.mobileBackground ?? theme.container.background,
-            borderBottom: theme.container.borderBottom,
-          }}
+          className="nav-mobile-dropdown-wrapper"
+          style={{ position: "absolute", top: toCss(height ?? theme.container.height), right: 0, zIndex: (theme.container.zIndex ?? 200) + 60, pointerEvents: "auto" }}
         >
-
-          {/* Themed border between navbar and mobile menu. Rendered as a separate element so it can be customized via theme. */}
+          {/* Pointer triangle */}
           <div
-            className="nav-mobile-border"
             style={{
-              width: "100%",
-              borderTop: theme.menu.mobileMenuBorder ?? "1px solid rgba(0,0,0,0.08)",
-              marginTop: 0,
+              position: "absolute",
+              right: parseInt(String(theme.container.paddingX || "16")) + 12,
+              top: -8,
+              width: 0,
+              height: 0,
+              borderLeft: "8px solid transparent",
+              borderRight: "8px solid transparent",
+              borderBottom: `8px solid ${theme.menu.mobileBackground ?? theme.container.background}`,
             }}
           />
-          {links.map(item => {
-            const Comp: any = item.href ? "a" : "button";
-            const base = { ...linkBase } as React.CSSProperties;
-            const active = item.active;
-            return (
-              <Comp
-                key={item.key}
-                href={item.href}
-                onClick={(e: React.MouseEvent) => {
-                  item.onClick?.(e);
-                  setOpen(false);
-                }}
-                disabled={item.disabled as any}
-                style={{
-                  ...base,
-                  color: active ? theme.link.activeColor : base.color,
-                  textAlign: "left",
-                  width: "100%",
-                  opacity: item.disabled ? 0.5 : 1,
-                }}
-              >
-                {item.label}
-              </Comp>
-            );
-          })}
 
-          {/* Place right-side actions inside the mobile menu stacked vertically */}
-          {rightChildren.length > 0 && (
-            <div
-              className="nav-right-mobile"
-              style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}
-            >
-              {rightChildren.map((child, idx) => (
-                <div key={idx} style={{ width: "100%" }}>
-                  {child}
-                </div>
-              ))}
-            </div>
-          )}
+          <div
+            className="nav-mobile-dropdown"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+              padding: `6px 0`,
+              background: theme.menu.mobileBackground ?? theme.container.background,
+              border: theme.menu.mobileMenuBorder ?? "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 8,
+              minWidth: theme.menu.mobileMenuMinWidth ?? 160,
+              maxWidth: theme.menu.mobileMenuMaxWidth ?? "90vw",
+              boxShadow: theme.container.shadow,
+              overflow: "hidden",
+              margin: theme.menu.mobileMenuMargin || "0",
+              transformOrigin: "top right",
+              transition: `transform ${animationDuration}ms ease, opacity ${animationDuration}ms ease`,
+              transform: animateIn ? "translateY(0) scale(1)" : "translateY(-6px) scale(0.98)",
+              opacity: animateIn ? 1 : 0,
+            }}
+          >
+            {links.map(item => {
+              const Comp: any = item.href ? "a" : "button";
+              const base = { ...linkBase, display: "block", padding: "10px 14px" } as React.CSSProperties;
+              const active = item.active;
+              return (
+                <Comp
+                  key={item.key}
+                  href={item.href}
+                  onClick={(e: React.MouseEvent) => {
+                    item.onClick?.(e);
+                    setOpen(false);
+                  }}
+                  disabled={item.disabled as any}
+                  style={{
+                    ...base,
+                    color: active ? theme.link.activeColor : base.color,
+                    textAlign: "left",
+                    width: "100%",
+                    background: "transparent",
+                    border: "none",
+                    outline: "none",
+                    opacity: item.disabled ? 0.5 : 1,
+                  }}
+                >
+                  {item.label}
+                </Comp>
+              );
+            })}
+
+            {rightChildren.length > 0 && (
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.04)", padding: "6px 8px", display: "flex", flexDirection: "column", gap: 8 }}>
+                {rightChildren.map((child, idx) => (
+                  <div key={idx} style={{ width: "100%" }}>
+                    {child}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -328,6 +397,7 @@ export function NavBar({
             /* Hide header right area on mobile; actions moved into mobile drawer */
             .nav-right-desktop { display: none !important; }
             .nav-right { /* keep hamburger position */ display: inline-flex; }
+            .nav-mobile { align-items: flex-end; }
             .nav-mobile .nav-right-mobile { display: flex; flex-direction: column; }
           }
           .nav-links-desktop a:hover, .nav-links-desktop button:hover {

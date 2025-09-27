@@ -173,3 +173,16 @@ export const StickyModes: Story = {
     </div>
   )
 };
+
+export const MobileMenuRight: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'iphone6' },
+    docs: { description: { story: 'Mobile menu constrained to content width and aligned to the right. This prevents the mobile drawer from covering the entire width and keeps actions visually grouped.' } }
+  },
+  render: () => (
+    <div style={{ padding: 0 }}>
+      <p style={{ padding: '8px 16px' }}><strong>Tip:</strong> Resize the Storybook preview to a mobile width to see the right-aligned mobile menu.</p>
+      <NavBar brand={brand} links={links} right={right} collapseAt={768} />
+    </div>
+  )
+};

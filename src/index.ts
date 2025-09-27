@@ -10,6 +10,7 @@ export * from "./components/Modal";
 export * from "./components/PageLayout";
 export * from "./components/NavBar";
 export * from "./components/Typography";
+export * from "./components/Icon"
 export { default as Typography } from "./components/Typography";
 import TypographyDefault from "./components/Typography";
 export default TypographyDefault;

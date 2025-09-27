@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import ReactDOM from "react-dom";
 import { useModalTheme } from "../theme/modalProvider";
 
 export interface ModalActionButton {
@@ -37,6 +38,27 @@ export function Modal({
 }: ModalProps) {
   const theme = useModalTheme();
 
+  // Create a portal container so modal is rendered at document.body level and
+  // not trapped inside other stacking contexts (fixes modals hiding behind sticky headers).
+  const elRef = React.useRef<HTMLDivElement | null>(null);
+  const [portalReady, setPortalReady] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const el = document.createElement("div");
+    el.className = "rain-modal-root";
+    elRef.current = el;
+    document.body.appendChild(el);
+    setPortalReady(true);
+    return () => {
+      setPortalReady(false);
+      if (elRef.current && document.body.contains(elRef.current)) {
+        document.body.removeChild(elRef.current);
+      }
+      elRef.current = null;
+    };
+  }, []);
+
   useEffect(() => {
     if (!show) return;
     const prev = document.body.style.overflow;
@@ -55,13 +77,16 @@ export function Modal({
     return () => window.removeEventListener("keydown", handler);
   }, [show, onClose, closeOnEscape]);
 
-  if (!show) return null;
+  // Don't render anything on server or until portal is ready
+  if (!show || !portalReady || typeof document === "undefined") return null;
 
   const onBackdrop = () => {
     if (!disableBackdropClose) onClose?.();
   };
 
-  return (
+  const overlayZ = (theme.zIndex ?? 1300) + 1000; // ensure above most app-level stacks
+
+  const modalContent = (
     <div role="dialog" aria-label={ariaLabel} aria-modal="true" style={{
       position: "fixed",
       inset: 0,
@@ -69,7 +94,8 @@ export function Modal({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      zIndex: theme.zIndex
+      zIndex: overlayZ,
+      pointerEvents: "auto"
     }} onClick={onBackdrop}>
       <div
         onClick={(e) => e.stopPropagation()}
@@ -134,4 +160,6 @@ export function Modal({
       </div>
     </div>
   );
+
+  return elRef.current ? ReactDOM.createPortal(modalContent, elRef.current) : null;
 }

@@ -3,7 +3,7 @@ import type { InputProps } from "../components/Input";
 import { Input as DefaultInput } from "../components/Input";
 import type { ButtonProps } from "../components/Button";
 import { Button as DefaultButton } from "../components/Button";
-import { useFormFieldValidator, type ValidatorKey } from "./formFieldValidator";
+import { useFormFieldValidator, type ValidatorKey, type ValidationRule } from "./formFieldValidator";
 
 export type MinimalZustandStore<T extends Record<string, any>> = {
   getState?: () => T;
@@ -40,7 +40,8 @@ export interface DynamicFormConfig<TValues extends Record<string, any> = Record<
     ) => void | Promise<void>;
     disabled?: boolean | ((values: TValues) => boolean);
   };
-  onChange?: (values: TValues) => void;
+  /** Called whenever a field value changes. Receives the full values object and an optional delta with the changed field name and value. */
+  onChange?: (values: TValues, delta?: { name: keyof TValues & string; value: any }) => void;
 }
 
 export interface UseDynamicFormOptions<TValues extends Record<string, any> = Record<string, any>> {
@@ -51,6 +52,10 @@ export interface UseDynamicFormOptions<TValues extends Record<string, any> = Rec
   // Style/class applied to the wrapper that groups all fields
   fieldsGroupStyle?: React.CSSProperties;
   fieldsGroupClassName?: string;
+  /** Optional validator rules object — if provided it will be used instead of the default rules */
+  validatorRules?: Partial<Record<ValidatorKey, ValidationRule>>;
+  /** Optional validator instance (returned from useFormFieldValidator). If provided, it will be used instead of the internally created validator. */
+  validatorInstance?: ReturnType<typeof useFormFieldValidator>;
 }
 
 export function useDynamicForm<
@@ -69,7 +74,13 @@ export function useDynamicForm<
     fieldsGroupClassName,
   } = options;
 
-  const { validate: runValidator } = useFormFieldValidator();
+  // Create internal validator (hook must be called unconditionally). If a caller provided
+  // their own validator instance via options.validatorInstance, prefer that instance instead
+  // of the internally created one. We don't pass any custom rules here by default —
+  // the consumer can supply a full `validatorInstance` if they want to override behavior.
+  const internalValidator = useFormFieldValidator();
+  const validatorToUse = (options && (options as UseDynamicFormOptions).validatorInstance) ?? internalValidator;
+  const { validate: runValidator } = validatorToUse;
 
   const computeFieldError = React.useCallback((f: DynamicFieldConfig<TValues>, value: any, allValues: TValues) => {
     if (Array.isArray(f.validate) || Array.isArray(f.validators)) {
@@ -111,6 +122,21 @@ export function useDynamicForm<
   const [values, setValues] = React.useState<TValues>(initial);
   const [errors, setErrors] = React.useState<Record<string, string | undefined>>({});
 
+  // Clear a single field error
+  const clearFieldError = React.useCallback((name: keyof TValues & string) => {
+    setErrors(prev => {
+      if (!prev || !(name in prev)) return prev;
+      const next = { ...prev } as Record<string, string | undefined>;
+      delete next[name];
+      return next;
+    });
+  }, []);
+
+  // Clear all field errors
+  const clearAllErrors = React.useCallback(() => {
+    setErrors({});
+  }, []);
+
   const setValue = React.useCallback(
     (name: keyof TValues & string, value: any) => {
       setValues(prev => {
@@ -120,7 +146,7 @@ export function useDynamicForm<
             zustandStore.setState({ [name]: value } as Partial<TValues>);
           } catch {}
         }
-        onChange?.(next);
+        onChange?.(next, { name, value });
         return next;
       });
     },
@@ -197,5 +223,5 @@ export function useDynamicForm<
     </form>
   );
 
-  return { form, values, setValue, setValues, errors, handleSubmit, submit } as const;
+  return { form, values, setValue, setValues, errors, handleSubmit, submit, clearFieldError, clearAllErrors } as const;
 }

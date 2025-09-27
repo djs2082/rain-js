@@ -24,6 +24,8 @@ export interface NavBarTheme {
     borderRadius: string;
   };
   menu: {
+    mobileMenuMaxWidth: string;
+    mobileMenuMinWidth: number;
     mobileMenuMargin: string;
     gap: string;
     mobileBackground?: string;

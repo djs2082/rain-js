@@ -87,7 +87,10 @@ export function PageLayout({
   const containerStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateRows,
-    height: fullHeight ? "100vh" : undefined,
+    // Use dynamic viewport height to avoid mobile address-bar causing window-level scroll.
+    // Browsers that don't support `dvh` will ignore it; if you want a fallback, we can
+    // add a small JS snippet to set --vh at app startup and use that instead.
+    height: fullHeight ? "100dvh" : undefined,
     width: "100%",
     overflow: "hidden", // prevent window scroll; internal areas scroll instead
     background: background ?? theme.surface.background,

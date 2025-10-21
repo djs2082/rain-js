@@ -64,9 +64,21 @@ export interface TypographyProps {
   children?: React.ReactNode;
 }
 
-export function Typography({ children }: TypographyProps) {
+type TypographyComponent = React.FC<TypographyProps> & {
+  Title: React.FC<AsProp<"h1">>;
+  SubTitle: React.FC<AsProp<"h2">>;
+  HeaderText: React.FC<AsProp<"h3">>;
+  FooterText: React.FC<AsProp<"p">>;
+  HelperText: React.FC<AsProp<"p">>;
+  ErrorText: React.FC<AsProp<"p">>;
+  SuccessText: React.FC<AsProp<"p">>;
+};
+
+const TypographyRoot: React.FC<TypographyProps> = ({ children }) => {
   return <>{children}</>;
-}
+};
+
+const Typography = TypographyRoot as TypographyComponent;
 
 Typography.Title = function Title(props: AsProp<"h1">) {
   const theme = useTypographyTheme();
@@ -103,4 +115,5 @@ Typography.SuccessText = function SuccessText(props: AsProp<"p">) {
   return createElement("p", theme.successText, theme.base.color, props);
 };
 
+export { Typography };
 export default Typography;

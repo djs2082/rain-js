@@ -4,6 +4,13 @@ import type { TypographyVariantStyle } from "../theme/typographyTypes";
 
 type AsProp<E extends keyof React.JSX.IntrinsicElements> = {
   as?: keyof React.JSX.IntrinsicElements;
+  /**
+   * When provided, sets the element's title attribute for hover tooltips.
+   * - true: derive the title from text children
+   * - string: use the provided string
+   * If a native `title` prop is also passed, that takes precedence.
+   */
+  hoverTitle?: boolean | string;
 } & Omit<React.JSX.IntrinsicElements[E], "as" | "style" | "color"> & {
   style?: React.CSSProperties;
   color?: string;
@@ -20,7 +27,22 @@ function createElement(
   props?: AsProp<keyof React.JSX.IntrinsicElements> & { children?: React.ReactNode }
 ) {
   const Tag = (props?.as ?? defaultTag) as any;
-  const { style, color, children, ...rest } = props ?? {};
+  const { style, color, children, hoverTitle, ...rest } = props ?? {} as any;
+  // Compute title attribute: explicit `title` wins; else use hoverTitle
+  let titleAttr: string | undefined = (rest as any).title;
+  if (!titleAttr && hoverTitle) {
+    if (typeof hoverTitle === "string") {
+      titleAttr = hoverTitle;
+    } else {
+      // derive from text-like children
+      const text = React.Children
+        .toArray(children)
+        .map(c => (typeof c === "string" || typeof c === "number") ? String(c) : "")
+        .join(" ")
+        .trim();
+      if (text) titleAttr = text;
+    }
+  }
   const styles: React.CSSProperties = {
     fontFamily: undefined,
     fontSize: styleTokens.fontSize,
@@ -32,7 +54,7 @@ function createElement(
     color: color ?? styleTokens.color ?? baseColor,
   };
   return (
-    <Tag style={cx(styles, style)} {...(rest as any)}>
+    <Tag title={titleAttr} style={cx(styles, style)} {...(rest as any)}>
       {children}
     </Tag>
   );

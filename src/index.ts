@@ -20,6 +20,7 @@ export * from "./components/ToastContainer";
 export * from "./components/Card";
 export * from "./components/Loader";
 export * from "./http/httpClient";
+export { default as PriorityBadge } from "./components/PriorityBadge";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";
@@ -41,6 +42,8 @@ export { ToastThemeProvider } from "./theme/toastProvider";
 export type { ToastTheme, ToastThemeOverride } from "./theme/toastTypes";
 export { CardThemeProvider } from "./theme/cardProvider";
 export type { CardTheme, CardThemeOverride } from "./theme/cardTypes";
+export { PriorityBadgeThemeProvider } from "./theme/priority/provider";
+export type { PriorityBadgeTheme, PriorityBadgeThemeOverride, Priority } from "./theme/priority/types";
 
 // Responsive context
 export { ResponsiveProvider, useResponsive } from "./context/ResponsiveContext";

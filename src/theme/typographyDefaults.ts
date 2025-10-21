@@ -27,6 +27,13 @@ export const defaultTypographyTheme: TypographyTheme = {
     lineHeight: 1.35,
     margin: "0 0 6px 0",
   },
+  bodyText: {
+    as: "p",
+    fontSize: "14px",
+    fontWeight: 400,
+    lineHeight: 1.6,
+    margin: "0 0 10px 0",
+  },
   footerText: {
     as: "p",
     fontSize: "12px",

@@ -18,6 +18,7 @@ export interface TypographyTheme {
   title: TypographyVariantStyle & { as?: string };
   subTitle: TypographyVariantStyle & { as?: string };
   headerText: TypographyVariantStyle & { as?: string };
+  bodyText: TypographyVariantStyle & { as?: string };
   footerText: TypographyVariantStyle & { as?: string };
   helperText: TypographyVariantStyle & { as?: string };
   errorText: TypographyVariantStyle & { as?: string };
@@ -30,6 +31,7 @@ export type TypographyThemeOverride = Partial<
     title: TypographyVariantStyle & { as?: string };
     subTitle: TypographyVariantStyle & { as?: string };
     headerText: TypographyVariantStyle & { as?: string };
+    bodyText: TypographyVariantStyle & { as?: string };
     footerText: TypographyVariantStyle & { as?: string };
     helperText: TypographyVariantStyle & { as?: string };
     errorText: TypographyVariantStyle & { as?: string };

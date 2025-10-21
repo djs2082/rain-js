@@ -11,7 +11,7 @@ const meta: Meta<typeof Typography> = {
     docs: {
       description: {
         component:
-          "Small, themed text components: Title, SubTitle, HeaderText, FooterText, HelperText, ErrorText, SuccessText. Wrap your app with TypographyThemeProvider to configure typography once, then use subcomponents anywhere. Each subcomponent accepts 'as', 'style', 'color', and native element props.",
+          "Small, themed text components: Title, SubTitle, HeaderText, BodyText, FooterText, HelperText, ErrorText, SuccessText. Wrap your app with TypographyThemeProvider to configure typography once, then use subcomponents anywhere. Each subcomponent accepts 'as', 'style', 'color', and native element props.",
       },
     },
   },
@@ -26,7 +26,7 @@ export const Basic: Story = {
       <Typography.Title>Page Title</Typography.Title>
       <Typography.SubTitle>Section subtitle</Typography.SubTitle>
       <Typography.HeaderText>Header text</Typography.HeaderText>
-      <p>Regular body content can go here as normal React children.</p>
+  <Typography.BodyText>Regular body content goes here (BodyText variant).</Typography.BodyText>
       <Typography.HelperText>Some helper guidance appears below an input.</Typography.HelperText>
       <Typography.ErrorText>There was a problem saving your changes.</Typography.ErrorText>
       <Typography.SuccessText>Saved successfully!</Typography.SuccessText>
@@ -37,7 +37,7 @@ export const Basic: Story = {
     docs: {
       description: {
         story:
-          "Quick preview of all typography variants. Use Title/SubTitle for section headings, HeaderText for smaller headers, and the status texts for contextual messages.",
+          "Quick preview of all typography variants. Use Title/SubTitle for section headings, HeaderText for smaller headers, BodyText for normal content, and the status texts for contextual messages.",
       },
     },
   },
@@ -104,6 +104,7 @@ export const Themed: Story = {
         title: { fontSize: "32px", color: "#0f172a" },
         subTitle: { color: "#334155" },
         headerText: { color: "#1f2937", fontWeight: 700 },
+        bodyText: { fontSize: "15px", lineHeight: 1.7 },
         footerText: { color: "#6b7280" },
         helperText: { color: "#6b7280" },
         errorText: { color: "#dc2626" },
@@ -114,6 +115,7 @@ export const Themed: Story = {
         <Typography.Title>Themed Title</Typography.Title>
         <Typography.SubTitle>Themed subtitle</Typography.SubTitle>
         <Typography.HeaderText>Themed header text</Typography.HeaderText>
+        <Typography.BodyText>Themed body text</Typography.BodyText>
         <Typography.HelperText>Helper theme</Typography.HelperText>
         <Typography.ErrorText>Error theme</Typography.ErrorText>
         <Typography.SuccessText>Success theme</Typography.SuccessText>
@@ -201,12 +203,13 @@ function Root() {
 
 // 3) Use anywhere (optionally destructure)
 function Page() {
-  const { Title, SubTitle, HeaderText, HelperText } = Typography;
+  const { Title, SubTitle, HeaderText, BodyText, HelperText } = Typography;
   return (
     <Typography>
       <Title>Dashboard</Title>
       <SubTitle>Overview</SubTitle>
       <HeaderText as="h4">Recent</HeaderText>
+      <BodyText>Standard body copy using the theme's BodyText tokens.</BodyText>
       <HelperText>Tips and guidance</HelperText>
     </Typography>
   );

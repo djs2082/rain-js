@@ -6,7 +6,9 @@ export interface CardProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   children?: React.ReactNode; // body
-  showDividers?: boolean;
+  showDividers?: boolean; // legacy/global toggle
+  showHeaderDivider?: boolean; // divider between header and body
+  showBodyDivider?: boolean; // divider between body and footer
   headerHeight?: string | number;
   footerHeight?: string | number;
   width?: string | number;
@@ -16,7 +18,9 @@ export interface CardProps {
   borderRadius?: string;
   border?: string;
   shadow?: string;
-  gap?: string | number;
+  gap?: string | number; // legacy/global gap
+  headerBodyGap?: string | number; // spacing between header and body (when no divider)
+  bodyFooterGap?: string | number; // spacing between body and footer (when no divider)
   className?: string;
   style?: React.CSSProperties;
   resizable?: boolean; // allow resize via CSS
@@ -33,6 +37,8 @@ export function Card({
   footer,
   children,
   showDividers = true,
+  showHeaderDivider,
+  showBodyDivider,
   headerHeight,
   footerHeight,
   width,
@@ -43,6 +49,8 @@ export function Card({
   border,
   shadow,
   gap,
+  headerBodyGap,
+  bodyFooterGap,
   className,
   style,
   resizable,
@@ -72,14 +80,19 @@ export function Card({
 
   const sectionPadding = (p?: string) => p ?? containerPadding;
   const gapCss = gap ?? theme.container.gap;
+  const gapHB = headerBodyGap ?? gapCss;
+  const gapBF = bodyFooterGap ?? gapCss;
+  const useHeaderDivider = showHeaderDivider ?? showDividers;
+  const useBodyDivider = showBodyDivider ?? showDividers;
 
-  const Divider = () => (
+  const toSpace = (v?: string | number) => (typeof v === "number" ? `${v}px` : v);
+  const Divider: React.FC<{ inset?: string; vertical?: string | number }> = ({ inset, vertical }) => (
     <div
       aria-hidden
       style={{
         height: theme.divider.thickness,
         background: theme.divider.color,
-        margin: `0 ${theme.divider.inset}`,
+        margin: `${toSpace(vertical) ?? 0} ${inset ?? theme.divider.inset}`,
         borderTop: theme.divider.style === "dashed" || theme.divider.style === "dotted" ? `${theme.divider.thickness} ${theme.divider.style} ${theme.divider.color}` : undefined,
       }}
     />
@@ -119,17 +132,17 @@ export function Card({
           )}
         </div>
       )}
-      <div className="card-inner" style={{ display: "flex", flexDirection: "column", gap: gapCss }}>
+      <div className="card-inner" style={{ display: "flex", flexDirection: "column" }}>
         {header && (
-          <div style={{ padding: sectionPadding(theme.header.padding), background: theme.header.background, color: theme.header.color, fontSize: theme.header.fontSize, fontWeight: theme.header.fontWeight, minHeight: toCss(headerHeight ?? theme.header.height) }}>
+          <div style={{ padding: sectionPadding(theme.header.padding), background: theme.header.background, color: theme.header.color, fontSize: theme.header.fontSize, fontWeight: theme.header.fontWeight, minHeight: toCss(headerHeight ?? theme.header.height), marginBottom: useHeaderDivider ? 0 : toSpace(gapHB) }}>
             {header}
           </div>
         )}
-        {showDividers && header && <Divider />}
-        <div style={{ padding: sectionPadding(theme.body.padding), background: theme.body.background, color: theme.body.color, fontSize: theme.body.fontSize, fontWeight: theme.body.fontWeight }}>
+        {useHeaderDivider && header && <Divider vertical={gapHB} />}
+        <div style={{ padding: sectionPadding(theme.body.padding), background: theme.body.background, color: theme.body.color, fontSize: theme.body.fontSize, fontWeight: theme.body.fontWeight, marginBottom: useBodyDivider ? 0 : toSpace(gapBF) }}>
           {children}
         </div>
-        {showDividers && footer && <Divider />}
+        {useBodyDivider && footer && <Divider vertical={gapBF} />}
         {footer && (
           <div style={{ padding: sectionPadding(theme.footer.padding), background: theme.footer.background, color: theme.footer.color, fontSize: theme.footer.fontSize, fontWeight: theme.footer.fontWeight, minHeight: toCss(footerHeight ?? theme.footer.height) }}>
             {footer}
@@ -144,7 +157,6 @@ export function Card({
             .has-accent .accent-rail { transition: none; }
           }
           @media (max-width: ${theme.container.mobileBreakpoint - 1}px) {
-            .card-inner { gap: ${typeof gapCss === "number" ? `${gapCss}px` : gapCss}; }
             .card-inner > div { padding-left: ${theme.container.mobilePadding}; padding-right: ${theme.container.mobilePadding}; }
           }
         `}

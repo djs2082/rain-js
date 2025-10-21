@@ -68,6 +68,7 @@ type TypographyComponent = React.FC<TypographyProps> & {
   Title: React.FC<AsProp<"h1">>;
   SubTitle: React.FC<AsProp<"h2">>;
   HeaderText: React.FC<AsProp<"h3">>;
+  BodyText: React.FC<AsProp<"p">>;
   FooterText: React.FC<AsProp<"p">>;
   HelperText: React.FC<AsProp<"p">>;
   ErrorText: React.FC<AsProp<"p">>;
@@ -93,6 +94,11 @@ Typography.SubTitle = function SubTitle(props: AsProp<"h2">) {
 Typography.HeaderText = function HeaderText(props: AsProp<"h3">) {
   const theme = useTypographyTheme();
   return createElement("h3", theme.headerText, theme.base.color, props);
+};
+
+Typography.BodyText = function BodyText(props: AsProp<"p">) {
+  const theme = useTypographyTheme();
+  return createElement("p", theme.bodyText, theme.base.color, props);
 };
 
 Typography.FooterText = function FooterText(props: AsProp<"p">) {

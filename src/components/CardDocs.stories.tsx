@@ -146,3 +146,27 @@ export const AccentVariants: Story = {
     </div>
   ),
 };
+
+export const SectionGaps: Story = {
+  args: {
+    header: <div>Custom section gaps</div>,
+    children: <div>Use headerBodyGap and bodyFooterGap to control spacing without dividers.</div>,
+    footer,
+    showDividers: false,
+    headerBodyGap: 24,
+    bodyFooterGap: 8,
+  },
+};
+
+export const PerDividerToggles: Story = {
+  args: {
+    header: <div>Per-divider toggles</div>,
+    children: <div>Show divider only between header and body.</div>,
+    footer,
+    showDividers: false,
+    showHeaderDivider: true,
+    showBodyDivider: false,
+    headerBodyGap: 0,
+    bodyFooterGap: 16,
+  },
+};

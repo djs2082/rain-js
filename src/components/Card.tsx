@@ -1,5 +1,6 @@
 import React from "react";
 import { useCardTheme } from "../theme/cardProvider";
+import type { CardAccentVariant } from "../theme/cardTypes";
 
 export interface CardProps {
   header?: React.ReactNode;
@@ -19,6 +20,10 @@ export interface CardProps {
   className?: string;
   style?: React.CSSProperties;
   resizable?: boolean; // allow resize via CSS
+  // Left accent rail
+  accent?: boolean;
+  accentVariant?: CardAccentVariant;
+  accentContent?: React.ReactNode; // revealed when expanded
 }
 
 const toCss = (v?: string | number) => (typeof v === "number" ? `${v}px` : v);
@@ -41,6 +46,9 @@ export function Card({
   className,
   style,
   resizable,
+  accent = false,
+  accentVariant = "primary",
+  accentContent,
 }: CardProps) {
   const theme = useCardTheme();
   const containerPadding = padding ?? theme.container.padding;
@@ -58,6 +66,8 @@ export function Card({
     boxSizing: "border-box",
     resize: resizable ? (height ? "vertical" : "both") : undefined,
     overflow: resizable ? "auto" : undefined,
+    position: accent ? "relative" : undefined,
+    overflowX: accent ? "hidden" : undefined,
   };
 
   const sectionPadding = (p?: string) => p ?? containerPadding;
@@ -75,8 +85,40 @@ export function Card({
     />
   );
 
+  const railTheme = theme.accent;
+  const railEnabled = accent && railTheme.enabled !== false;
+  const variant = railTheme.variants[accentVariant] ?? railTheme.variants["primary"];
+
   return (
-    <div className={className} style={{ ...root, ...style }}>
+    <div className={(className ? className + " " : "") + (railEnabled ? "has-accent" : "")} style={{ ...root, ...style }}>
+      {railEnabled && (
+        <div
+          className="accent-rail"
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: railTheme.baseWidth,
+            background: variant.color,
+            color: variant.contentColor,
+            borderTopLeftRadius: railTheme.radius ?? theme.container.borderRadius,
+            borderBottomLeftRadius: railTheme.radius ?? theme.container.borderRadius,
+            boxShadow: railTheme.shadow,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            overflow: "hidden",
+          }}
+        >
+          {accentContent && (
+            <div className="accent-content" style={{ padding: railTheme.padding, whiteSpace: "nowrap" }}>
+              {accentContent}
+            </div>
+          )}
+        </div>
+      )}
       <div className="card-inner" style={{ display: "flex", flexDirection: "column", gap: gapCss }}>
         {header && (
           <div style={{ padding: sectionPadding(theme.header.padding), background: theme.header.background, color: theme.header.color, fontSize: theme.header.fontSize, fontWeight: theme.header.fontWeight, minHeight: toCss(headerHeight ?? theme.header.height) }}>
@@ -96,6 +138,11 @@ export function Card({
       </div>
       <style>
         {`
+          .has-accent .accent-rail { width: ${railTheme.baseWidth}px; transition: width ${railTheme.transitionMs}ms ease; }
+          .has-accent:hover .accent-rail, .has-accent:focus-within .accent-rail { width: ${railTheme.expandedWidth}px; }
+          @media (prefers-reduced-motion: reduce) {
+            .has-accent .accent-rail { transition: none; }
+          }
           @media (max-width: ${theme.container.mobileBreakpoint - 1}px) {
             .card-inner { gap: ${typeof gapCss === "number" ? `${gapCss}px` : gapCss}; }
             .card-inner > div { padding-left: ${theme.container.mobilePadding}; padding-right: ${theme.container.mobilePadding}; }

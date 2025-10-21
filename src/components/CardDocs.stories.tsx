@@ -100,3 +100,49 @@ export const Themed: Story = {
     </CardThemeProvider>
   ),
 };
+
+export const WithAccent: Story = {
+  args: {
+    header: <div>Card with left accent</div>,
+    children: <div>Hover or focus within to expand the accent rail.</div>,
+    footer,
+    accent: true,
+    accentVariant: "primary",
+  },
+};
+
+export const WithAccentAndContent: Story = {
+  args: {
+    header: <div>Accent reveals content</div>,
+    children: <div>The accent rail expands to reveal a short label.</div>,
+    footer,
+    accent: true,
+    accentVariant: "success",
+    accentContent: <div style={{ fontSize: 12, fontWeight: 600 }}>Info</div>,
+  },
+};
+
+export const AccentVariants: Story = {
+  render: () => (
+    <div style={{ display: "grid", gap: 16 }}>
+      <Card accent accentVariant="primary" header={<div>Primary</div>}>
+        <div>Primary accent rail</div>
+      </Card>
+      <Card accent accentVariant="secondary" header={<div>Secondary</div>}>
+        <div>Secondary accent rail</div>
+      </Card>
+      <Card accent accentVariant="success" header={<div>Success</div>}>
+        <div>Success accent rail</div>
+      </Card>
+      <Card accent accentVariant="warning" header={<div>Warning</div>}>
+        <div>Warning accent rail</div>
+      </Card>
+      <Card accent accentVariant="danger" header={<div>Danger</div>}>
+        <div>Danger accent rail</div>
+      </Card>
+      <Card accent accentVariant="info" header={<div>Info</div>}>
+        <div>Info accent rail</div>
+      </Card>
+    </div>
+  ),
+};

@@ -32,4 +32,21 @@ export const defaultCardTheme: CardTheme = {
     style: "solid",
     inset: "0",
   },
+  accent: {
+    enabled: true,
+    baseWidth: 4,
+    expandedWidth: 120,
+    transitionMs: 200,
+    radius: "12px 0 0 12px",
+    shadow: undefined,
+    padding: "8px",
+    variants: {
+      primary: { color: "#3b82f6", contentColor: "#ffffff" },
+      secondary: { color: "#6b7280", contentColor: "#ffffff" },
+      success: { color: "#10b981", contentColor: "#ffffff" },
+      warning: { color: "#f59e0b", contentColor: "#111827" },
+      danger: { color: "#ef4444", contentColor: "#ffffff" },
+      info: { color: "#0ea5e9", contentColor: "#ffffff" },
+    },
+  },
 };

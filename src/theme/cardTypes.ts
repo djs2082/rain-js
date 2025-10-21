@@ -14,6 +14,24 @@ export interface CardDividerStyle {
   style?: "solid" | "dashed" | "dotted";
 }
 
+export type CardAccentVariant = "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+
+export interface CardAccentStyleVariant {
+  color: string; // rail color
+  contentColor?: string; // text/icon color when expanded
+}
+
+export interface CardAccentStyle {
+  enabled?: boolean; // if false, accent is ignored globally
+  baseWidth: number; // px
+  expandedWidth: number; // px on hover/focus-within
+  transitionMs: number;
+  radius?: string; // border radius for the rail; defaults to inherit
+  shadow?: string; // optional shadow for the rail when expanded
+  padding?: string; // inner padding for content shown when expanded
+  variants: Record<CardAccentVariant, CardAccentStyleVariant>;
+}
+
 export interface CardTheme {
   container: {
     background: string;
@@ -33,6 +51,7 @@ export interface CardTheme {
   body: CardSectionStyle;
   footer: CardSectionStyle;
   divider: CardDividerStyle;
+  accent: CardAccentStyle;
 }
 
 export type CardThemeOverride = Partial<
@@ -42,5 +61,6 @@ export type CardThemeOverride = Partial<
     body: Partial<CardSectionStyle>;
     footer: Partial<CardSectionStyle>;
     divider: Partial<CardDividerStyle>;
+    accent: Partial<CardAccentStyle> & { variants?: Partial<Record<CardAccentVariant, Partial<CardAccentStyleVariant>>> };
   }
 >;

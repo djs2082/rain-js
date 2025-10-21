@@ -20,7 +20,7 @@ export * from "./components/ToastContainer";
 export * from "./components/Card";
 export * from "./components/Loader";
 export * from "./http/httpClient";
-export { default as PriorityBadge } from "./components/PriorityBadge";
+export * from "./components/PriorityBadge";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";

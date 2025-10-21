@@ -1,6 +1,6 @@
 {
   "name": "@karya_app1/rain-js",
-  "version": "0.3.9",
+  "version": "0.4.2",
   "description": "A React library with useful hooks and UI components",
   "author": "Your Name",
   "license": "MIT",
@@ -20,8 +20,7 @@
     "storybook:clean": "rm -rf node_modules/.cache/storybook",
     "build:storybook": "storybook build",
     "deploy-storybook": "storybook-to-aws-s3 --bucket-path=rain-js-storybook --bucket-region=us-east-1",
-    "release": "npm publish --access public",
-    "postpublish": "python3 deploy.py --bucket rain-js-storybook"
+    "release": "npm publish --access public"
   },
   "peerDependencies": {
     "axios": ">=1.0.0",

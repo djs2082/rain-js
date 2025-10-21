@@ -13,7 +13,7 @@ export type PriorityBadgeProps = {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, className, style, label, showDot, blinkDot }) => {
+export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, className, style, label, showDot, blinkDot }) => {
 	const theme = usePriorityBadgeTheme();
 	const v = theme.variants[priority];
 	const text = label ?? capitalize(priority);
@@ -71,5 +71,5 @@ const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, className, styl
 	);
 };
 
-export default PriorityBadge;
+PriorityBadge;
 

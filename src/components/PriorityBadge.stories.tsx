@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
-import PriorityBadge from "./PriorityBadge";
+import { PriorityBadge } from "./PriorityBadge";
 import { PriorityBadgeThemeProvider } from "../theme/priority/provider";
 
 const meta: Meta<typeof PriorityBadge> = {

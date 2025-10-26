@@ -1,0 +1,1163 @@
+import { Meta } from "@storybook/blocks";
+import { DatePicker } from "../components/DatePicker";
+import { DatePickerThemeProvider } from "../theme/datePickerProvider";
+
+<Meta title="Docs/DatePicker" />
+
+# DatePicker — Complete Guide
+
+A flexible, themeable date picker component with calendar popup, date constraints, inline mode, and locale support. Perfect for forms, filters, booking systems, and any interface that needs date selection.
+
+**What makes this DatePicker special?**
+- **Calendar grid view** — Visual month view with weekday labels and navigation
+- **Date constraints** — Min/max dates, disabled dates, and custom validation
+- **Inline or popup mode** — Show calendar inline or in a popup panel
+- **Locale support** — Automatic date formatting based on locale
+- **First day of week** — Customizable (Sunday/Monday start)
+- **Theme system** — Customize colors, sizes, borders, shadows, and more
+- **Accessible** — Keyboard navigation, ARIA attributes, screen reader support
+
+**Why use this DatePicker?**
+- Easy date selection with visual calendar
+- Prevents invalid date entry with constraints
+- Consistent styling with theme provider
+- Works great in forms with error/validation support
+- Supports international date formats
+
+---
+
+## Quick Start
+
+Here's the simplest way to use a DatePicker:
+
+```tsx
+import { DatePicker } from "@karya_app1/rain-js";
+import { useState } from "react";
+
+function App() {
+  const [date, setDate] = useState<Date | null>(null);
+  
+  return (
+    <DatePicker
+      value={date}
+      onChange={setDate}
+      label="Select Date"
+      placeholder="Pick a date"
+    />
+  );
+}
+```
+
+**What's happening here?**
+1. Import DatePicker and React's useState
+2. Create state to hold the selected date (Date object or null)
+3. Pass `value` (current selection) and `onChange` (update handler)
+4. Add `label` for the field label and `placeholder` for hint text
+5. Click the input to open calendar popup, select a date
+
+---
+
+## How it Works — Core Concepts
+
+### 1. **Controlled component pattern**
+DatePicker requires `value` and `onChange` props:
+- `value` — The currently selected date (Date object) or null if nothing selected
+- `onChange` — Function called when user selects a date, receives the new Date or null
+
+### 2. **Calendar grid interface**
+When opened, shows:
+- **Month/year header** with navigation arrows
+- **Weekday labels** (Sun/Mon/Tue... or localized)
+- **6-week grid** of days (includes days from prev/next month)
+- **Today/Clear actions** in footer (optional)
+
+### 3. **Date constraints**
+Control which dates are selectable:
+- `minDate` — Earliest selectable date
+- `maxDate` — Latest selectable date
+- `disabledDates` — Custom function to disable specific dates
+
+### 4. **Inline vs popup mode**
+- **Popup (default)** — Calendar shows when clicking the input field
+- **Inline** — Calendar always visible, no input field
+
+### 5. **Integration with forms**
+Works seamlessly with validation:
+- `error` prop to show error state
+- `helperText` for validation messages
+- `required` to mark as mandatory
+
+---
+
+## API Reference — DatePickerProps
+
+All the props you can pass to the DatePicker component:
+
+```tsx
+interface DatePickerProps {
+  // Required
+  value: Date | null;
+  onChange: (date: Date | null) => void;
+  
+  // Styling
+  color?: "primary" | "secondary" | "success" | "error" | "warning" | "info";
+  size?: "small" | "medium" | "large";
+  variant?: "outlined" | "filled" | "standard";
+  
+  // Input field
+  placeholder?: string;
+  label?: string;
+  floatingLabel?: boolean;
+  fullWidth?: boolean;
+  
+  // Calendar behavior
+  format?: (date: Date) => string;
+  minDate?: Date;
+  maxDate?: Date;
+  disabledDates?: (date: Date) => boolean;
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  locale?: string;
+  
+  // Mode and features
+  inline?: boolean;
+  clearable?: boolean;
+  showToday?: boolean;
+  
+  // Validation
+  error?: boolean;
+  helperText?: string;
+  required?: boolean;
+  
+  // State
+  disabled?: boolean;
+  
+  // Other
+  className?: string;
+  style?: React.CSSProperties;
+}
+```
+
+### Required Props
+
+#### `value` (required)
+- **Type:** `Date | null`
+- **What it is:** The currently selected date
+- **Usage:** Must be a JavaScript Date object or null (no date selected)
+- **Examples:**
+  ```tsx
+  // No date selected
+  const [date, setDate] = useState<Date | null>(null);
+  <DatePicker value={date} onChange={setDate} />
+  
+  // Pre-selected date
+  const [date, setDate] = useState<Date | null>(new Date());
+  <DatePicker value={date} onChange={setDate} />
+  
+  // Specific date
+  const [date, setDate] = useState<Date | null>(new Date(2024, 11, 25)); // Dec 25, 2024
+  <DatePicker value={date} onChange={setDate} />
+  ```
+
+#### `onChange` (required)
+- **Type:** `(date: Date | null) => void`
+- **What it does:** Called when user selects or clears a date
+- **Parameters:**
+  - `date` — The newly selected Date object, or null if cleared
+- **Examples:**
+  ```tsx
+  // Basic state update
+  const [date, setDate] = useState<Date | null>(null);
+  <DatePicker value={date} onChange={setDate} />
+  
+  // With side effects
+  const handleDateChange = (newDate: Date | null) => {
+    setDate(newDate);
+    console.log("Date changed to:", newDate);
+    
+    // Maybe trigger an API call
+    if (newDate) {
+      fetchData(newDate);
+    }
+  };
+  <DatePicker value={date} onChange={handleDateChange} />
+  
+  // Form integration
+  const handleDateChange = (newDate: Date | null) => {
+    setFormData(prev => ({ ...prev, birthdate: newDate }));
+  };
+  <DatePicker value={formData.birthdate} onChange={handleDateChange} />
+  ```
+
+### Styling Props
+
+#### `color` (optional)
+- **Type:** `"primary"` | `"secondary"` | `"success"` | `"error"` | `"warning"` | `"info"`
+- **What it does:** Sets the theme color for the picker
+- **Default:** `"primary"`
+- **When to use each:**
+  - **primary** — Standard date selection
+  - **secondary** — Alternative styling
+  - **success** — Completion dates, goals
+  - **error** — Validation errors
+  - **warning** — Important dates needing attention
+  - **info** — Informational date fields
+- **Example:**
+  ```tsx
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    color="success"
+    label="Goal Date"
+  />
+  ```
+
+#### `size` (optional)
+- **Type:** `"small"` | `"medium"` | `"large"`
+- **What it does:** Controls the size of the input field and calendar
+- **Default:** `"medium"`
+- **Examples:**
+  ```tsx
+  // Compact picker
+  <DatePicker size="small" value={date} onChange={setDate} />
+  
+  // Default size
+  <DatePicker size="medium" value={date} onChange={setDate} />
+  
+  // Large picker for emphasis
+  <DatePicker size="large" value={date} onChange={setDate} />
+  ```
+
+#### `variant` (optional)
+- **Type:** `"outlined"` | `"filled"` | `"standard"`
+- **What it does:** Sets the visual style of the input field
+- **Default:** `"outlined"`
+- **Examples:**
+  ```tsx
+  // With border (default)
+  <DatePicker variant="outlined" value={date} onChange={setDate} />
+  
+  // Filled background
+  <DatePicker variant="filled" value={date} onChange={setDate} />
+  
+  // Bottom border only
+  <DatePicker variant="standard" value={date} onChange={setDate} />
+  ```
+
+### Input Field Props
+
+#### `placeholder` (optional)
+- **Type:** String
+- **What it is:** Hint text shown when no date is selected
+- **Default:** `"Select date"`
+- **Example:**
+  ```tsx
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    placeholder="Choose a date"
+  />
+  ```
+
+#### `label` (optional)
+- **Type:** String
+- **What it is:** Label text shown above or inside the input
+- **Examples:**
+  ```tsx
+  // Static label above input
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    label="Birth Date"
+  />
+  
+  // With floating label
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    label="Appointment Date"
+    floatingLabel={true}
+  />
+  ```
+
+#### `floatingLabel` (optional)
+- **Type:** Boolean
+- **What it does:** Makes label float up when focused or has value
+- **Default:** `false`
+- **Example:**
+  ```tsx
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    label="Select Date"
+    floatingLabel={true}
+  />
+  ```
+
+#### `fullWidth` (optional)
+- **Type:** Boolean
+- **What it does:** Makes the input stretch to fill its container
+- **Default:** `false`
+- **Example:**
+  ```tsx
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    fullWidth={true}
+  />
+  ```
+
+### Calendar Behavior Props
+
+#### `format` (optional)
+- **Type:** Function that receives a Date and returns a string
+- **What it does:** Custom formatting for the displayed date
+- **Default:** Locale-based formatting (e.g., "12/25/2024" in US, "25/12/2024" in UK)
+- **Examples:**
+  ```tsx
+  // Custom format: "Dec 25, 2024"
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    format={(d) => d.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    })}
+  />
+  
+  // ISO format: "2024-12-25"
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    format={(d) => d.toISOString().split('T')[0]}
+  />
+  
+  // Custom format: "Wednesday, December 25"
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    format={(d) => d.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric'
+    })}
+  />
+  ```
+
+#### `minDate` (optional)
+- **Type:** Date object
+- **What it does:** Earliest date that can be selected (dates before are disabled)
+- **When to use:** Prevent past dates, set start of valid range
+- **Examples:**
+  ```tsx
+  // No past dates (from today onwards)
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    minDate={new Date()}
+    label="Future Date"
+  />
+  
+  // From specific date onwards
+  const startDate = new Date(2024, 0, 1); // Jan 1, 2024
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    minDate={startDate}
+  />
+  
+  // One week from now
+  const oneWeekFromNow = new Date();
+  oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    minDate={oneWeekFromNow}
+  />
+  ```
+
+#### `maxDate` (optional)
+- **Type:** Date object
+- **What it does:** Latest date that can be selected (dates after are disabled)
+- **When to use:** Prevent future dates, set end of valid range
+- **Examples:**
+  ```tsx
+  // No future dates (today and earlier)
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    maxDate={new Date()}
+    label="Past Date"
+  />
+  
+  // Up to specific date
+  const endDate = new Date(2024, 11, 31); // Dec 31, 2024
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    maxDate={endDate}
+  />
+  
+  // Date range (min and max together)
+  const start = new Date(2024, 0, 1);
+  const end = new Date(2024, 11, 31);
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    minDate={start}
+    maxDate={end}
+    label="2024 Only"
+  />
+  ```
+
+#### `disabledDates` (optional)
+- **Type:** Function that receives a Date and returns boolean
+- **What it does:** Custom logic to disable specific dates
+- **Return:** `true` to disable the date, `false` to allow it
+- **When to use:** Block specific dates like holidays, weekends, or unavailable dates
+- **Examples:**
+  ```tsx
+  // Disable weekends
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    disabledDates={(d) => {
+      const day = d.getDay();
+      return day === 0 || day === 6; // Sunday or Saturday
+    }}
+    label="Weekday Only"
+  />
+  
+  // Disable specific dates (holidays)
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    disabledDates={(d) => {
+      const christmas = new Date(2024, 11, 25);
+      const newYear = new Date(2025, 0, 1);
+      return (
+        d.toDateString() === christmas.toDateString() ||
+        d.toDateString() === newYear.toDateString()
+      );
+    }}
+    label="Excluding Holidays"
+  />
+  
+  // Disable every 13th of the month
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    disabledDates={(d) => d.getDate() === 13}
+  />
+  
+  // Disable dates from API (already booked dates)
+  const bookedDates = [
+    new Date(2024, 11, 25),
+    new Date(2024, 11, 26),
+    new Date(2024, 11, 30)
+  ];
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    disabledDates={(d) => 
+      bookedDates.some(booked => 
+        booked.toDateString() === d.toDateString()
+      )
+    }
+    label="Available Dates"
+  />
+  ```
+
+#### `firstDayOfWeek` (optional)
+- **Type:** `0 | 1 | 2 | 3 | 4 | 5 | 6`
+- **What it does:** Sets which day starts the week in the calendar
+- **Values:** 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
+- **Default:** `0` (Sunday)
+- **Examples:**
+  ```tsx
+  // Week starts on Sunday (US/default)
+  <DatePicker value={date} onChange={setDate} firstDayOfWeek={0} />
+  
+  // Week starts on Monday (Europe/ISO)
+  <DatePicker value={date} onChange={setDate} firstDayOfWeek={1} />
+  
+  // Week starts on Saturday (Middle East)
+  <DatePicker value={date} onChange={setDate} firstDayOfWeek={6} />
+  ```
+
+#### `locale` (optional)
+- **Type:** String (BCP 47 language tag)
+- **What it does:** Sets the locale for date formatting and weekday labels
+- **Default:** Browser's default locale
+- **Examples:**
+  ```tsx
+  // US English: "12/25/2024"
+  <DatePicker value={date} onChange={setDate} locale="en-US" />
+  
+  // UK English: "25/12/2024"
+  <DatePicker value={date} onChange={setDate} locale="en-GB" />
+  
+  // German: "25.12.2024"
+  <DatePicker value={date} onChange={setDate} locale="de-DE" />
+  
+  // Japanese: "2024/12/25"
+  <DatePicker value={date} onChange={setDate} locale="ja-JP" />
+  
+  // French: "25/12/2024"
+  <DatePicker value={date} onChange={setDate} locale="fr-FR" />
+  ```
+
+### Mode and Features Props
+
+#### `inline` (optional)
+- **Type:** Boolean
+- **What it does:** Shows calendar directly (no input field, always visible)
+- **Default:** `false`
+- **When to use:** Dashboards, embedded calendars, always-visible date selection
+- **Example:**
+  ```tsx
+  // Popup mode (default) - click input to show calendar
+  <DatePicker value={date} onChange={setDate} inline={false} />
+  
+  // Inline mode - calendar always visible
+  <DatePicker value={date} onChange={setDate} inline={true} />
+  ```
+
+#### `clearable` (optional)
+- **Type:** Boolean
+- **What it does:** Shows "Clear" button in calendar footer to deselect date
+- **Default:** `true`
+- **Example:**
+  ```tsx
+  // With clear button (default)
+  <DatePicker value={date} onChange={setDate} clearable={true} />
+  
+  // Without clear button (date required)
+  <DatePicker value={date} onChange={setDate} clearable={false} />
+  ```
+
+#### `showToday` (optional)
+- **Type:** Boolean
+- **What it does:** Shows "Today" button in calendar footer to quickly select today
+- **Default:** `true`
+- **Example:**
+  ```tsx
+  // With today button (default)
+  <DatePicker value={date} onChange={setDate} showToday={true} />
+  
+  // Without today button
+  <DatePicker value={date} onChange={setDate} showToday={false} />
+  ```
+
+### Validation Props
+
+#### `error` (optional)
+- **Type:** Boolean
+- **What it does:** Shows error state styling (red border, red text)
+- **Default:** `false`
+- **When to use:** When validation fails
+- **Example:**
+  ```tsx
+  const [date, setDate] = useState<Date | null>(null);
+  const [error, setError] = useState(false);
+  
+  const handleChange = (newDate: Date | null) => {
+    setDate(newDate);
+    // Validate: must be in the future
+    setError(newDate ? newDate < new Date() : false);
+  };
+  
+  <DatePicker
+    value={date}
+    onChange={handleChange}
+    error={error}
+    helperText={error ? "Date must be in the future" : ""}
+  />
+  ```
+
+#### `helperText` (optional)
+- **Type:** String
+- **What it is:** Help text or error message shown below the input
+- **When to use:** Guidance, validation errors, format hints
+- **Examples:**
+  ```tsx
+  // Helpful guidance
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    helperText="Select your preferred appointment date"
+  />
+  
+  // Error message
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    error={true}
+    helperText="Please select a valid date"
+  />
+  
+  // Format hint
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    helperText="MM/DD/YYYY format"
+  />
+  ```
+
+#### `required` (optional)
+- **Type:** Boolean
+- **What it does:** Marks field as required (shows red asterisk next to label)
+- **Default:** `false`
+- **Example:**
+  ```tsx
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    label="Birth Date"
+    required={true}
+    helperText="This field is required"
+  />
+  ```
+
+### State Props
+
+#### `disabled` (optional)
+- **Type:** Boolean
+- **What it does:** Disables the date picker (not clickable, grayed out)
+- **Default:** `false`
+- **When to use:** Conditionally prevent date selection
+- **Example:**
+  ```tsx
+  // Conditional disabling
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  
+  <div>
+    <label>
+      <input 
+        type="checkbox" 
+        checked={agreeTerms}
+        onChange={(e) => setAgreeTerms(e.target.checked)}
+      />
+      I agree to the terms
+    </label>
+    
+    <DatePicker
+      value={date}
+      onChange={setDate}
+      disabled={!agreeTerms}
+      label="Appointment Date"
+      helperText={!agreeTerms ? "Please agree to terms first" : ""}
+    />
+  </div>
+  ```
+
+### Other Props
+
+#### `className` (optional)
+- **Type:** String
+- **What it does:** Adds CSS class names
+- **Example:**
+  ```tsx
+  <DatePicker 
+    value={date} 
+    onChange={setDate}
+    className="my-custom-picker"
+  />
+  ```
+
+#### `style` (optional)
+- **Type:** React.CSSProperties object
+- **What it does:** Applies custom inline styles
+- **Example:**
+  ```tsx
+  <DatePicker
+    value={date}
+    onChange={setDate}
+    style={{ marginBottom: "20px" }}
+  />
+  ```
+
+---
+
+## DatePickerThemeProvider — Customizing Appearance
+
+Use the theme provider to customize styling across all date pickers.
+
+### Basic Usage
+
+```tsx
+import { DatePicker, DatePickerThemeProvider } from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <DatePickerThemeProvider
+      theme={{
+        colors: {
+          primary: {
+            main: "#3b82f6",
+            hover: "#2563eb",
+            text: "#1e40af",
+            border: "#60a5fa",
+            focus: "#3b82f6"
+          }
+        }
+      }}
+    >
+      <DatePicker value={date} onChange={setDate} color="primary" />
+    </DatePickerThemeProvider>
+  );
+}
+```
+
+### Theme Structure
+
+```tsx
+interface DatePickerTheme {
+  colors: {
+    primary: ColorConfig;
+    secondary: ColorConfig;
+    success: ColorConfig;
+    error: ColorConfig;
+    warning: ColorConfig;
+    info: ColorConfig;
+  };
+  sizes: {
+    small: SizeConfig;
+    medium: SizeConfig;
+    large: SizeConfig;
+  };
+  surface: {
+    background: string;
+    headerBackground: string;
+    headerText: string;
+    border: string;
+  };
+  radius: string;
+  shadow: string;
+  fontFamily: string;
+  zIndex: number;
+}
+
+interface ColorConfig {
+  main: string;      // Selected date background
+  hover: string;     // Date hover background
+  text: string;      // Text color
+  border: string;    // Border color
+  focus: string;     // Focus ring color
+}
+
+interface SizeConfig {
+  daySize: string;        // Calendar day cell size
+  fontSize: string;       // Calendar text size
+  headerFontSize: string; // Header text size
+  padding: string;        // Calendar padding
+}
+```
+
+### Theme Properties Explained
+
+#### Color Properties
+Customize all six color variants with these properties:
+
+**`main`** — Background color for selected date  
+**`hover`** — Background color when hovering over a date  
+**`text`** — Text color for dates and UI elements  
+**`border`** — Border color for input and calendar  
+**`focus`** — Focus ring color
+
+**Example:**
+```tsx
+<DatePickerThemeProvider
+  theme={{
+    colors: {
+      primary: {
+        main: "#3b82f6",
+        hover: "#60a5fa",
+        text: "#1e40af",
+        border: "#93c5fd",
+        focus: "#3b82f6"
+      }
+    }
+  }}
+>
+  <DatePicker value={date} onChange={setDate} color="primary" />
+</DatePickerThemeProvider>
+```
+
+#### Size Properties
+
+**`daySize`** — Width/height of each day cell (e.g., "36px")  
+**`fontSize`** — Font size for calendar dates  
+**`headerFontSize`** — Font size for month/year header  
+**`padding`** — Padding inside calendar panel
+
+**Example:**
+```tsx
+<DatePickerThemeProvider
+  theme={{
+    sizes: {
+      medium: {
+        daySize: "40px",
+        fontSize: "14px",
+        headerFontSize: "16px",
+        padding: "16px"
+      }
+    }
+  }}
+>
+  <DatePicker value={date} onChange={setDate} size="medium" />
+</DatePickerThemeProvider>
+```
+
+#### Surface Properties
+
+**`background`** — Calendar panel background  
+**`headerBackground`** — Month/year header background  
+**`headerText`** — Header text color  
+**`border`** — Calendar panel border color
+
+**Example:**
+```tsx
+<DatePickerThemeProvider
+  theme={{
+    surface: {
+      background: "#ffffff",
+      headerBackground: "#f3f4f6",
+      headerText: "#111827",
+      border: "#e5e7eb"
+    }
+  }}
+>
+  <DatePicker value={date} onChange={setDate} />
+</DatePickerThemeProvider>
+```
+
+#### Other Properties
+
+**`radius`** — Border radius for calendar and day cells  
+**`shadow`** — Box shadow for calendar popup  
+**`fontFamily`** — Font family for all text  
+**`zIndex`** — Stacking order for popup
+
+---
+
+## Common Examples
+
+### Date of Birth Picker
+
+```tsx
+const [birthDate, setBirthDate] = useState<Date | null>(null);
+const maxDate = new Date(); // Today
+maxDate.setFullYear(maxDate.getFullYear() - 18); // Must be 18+
+
+<DatePicker
+  value={birthDate}
+  onChange={setBirthDate}
+  label="Date of Birth"
+  placeholder="MM/DD/YYYY"
+  maxDate={maxDate}
+  required
+  helperText="You must be at least 18 years old"
+/>
+```
+
+### Appointment Booking
+
+```tsx
+const [appointmentDate, setAppointmentDate] = useState<Date | null>(null);
+const minDate = new Date(); // No past dates
+const maxDate = new Date();
+maxDate.setMonth(maxDate.getMonth() + 3); // Up to 3 months ahead
+
+<DatePicker
+  value={appointmentDate}
+  onChange={setAppointmentDate}
+  label="Appointment Date"
+  minDate={minDate}
+  maxDate={maxDate}
+  disabledDates={(d) => {
+    const day = d.getDay();
+    return day === 0 || day === 6; // No weekends
+  }}
+  showToday
+  required
+  helperText="Select a weekday within the next 3 months"
+/>
+```
+
+### Date Range (Start Date)
+
+```tsx
+const [startDate, setStartDate] = useState<Date | null>(null);
+const [endDate, setEndDate] = useState<Date | null>(null);
+
+<div style={{ display: "flex", gap: "16px" }}>
+  <DatePicker
+    value={startDate}
+    onChange={(date) => {
+      setStartDate(date);
+      // Clear end date if it's before new start date
+      if (endDate && date && endDate < date) {
+        setEndDate(null);
+      }
+    }}
+    label="Start Date"
+    maxDate={endDate || undefined}
+  />
+  
+  <DatePicker
+    value={endDate}
+    onChange={setEndDate}
+    label="End Date"
+    minDate={startDate || new Date()}
+    disabled={!startDate}
+  />
+</div>
+```
+
+### Inline Calendar Dashboard
+
+```tsx
+const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+
+<div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "16px" }}>
+  <h3>Select Date</h3>
+  <DatePicker
+    value={selectedDate}
+    onChange={setSelectedDate}
+    inline
+    clearable={false}
+  />
+  {selectedDate && (
+    <div style={{ marginTop: "16px" }}>
+      <p>Selected: {selectedDate.toLocaleDateString()}</p>
+    </div>
+  )}
+</div>
+```
+
+### With Form Validation
+
+```tsx
+const [date, setDate] = useState<Date | null>(null);
+const [touched, setTouched] = useState(false);
+const [submitted, setSubmitted] = useState(false);
+
+const error = (touched || submitted) && !date;
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitted(true);
+  
+  if (date) {
+    console.log("Submitting date:", date);
+  }
+};
+
+<form onSubmit={handleSubmit}>
+  <DatePicker
+    value={date}
+    onChange={(newDate) => {
+      setDate(newDate);
+      setTouched(true);
+    }}
+    label="Event Date"
+    required
+    error={error}
+    helperText={error ? "Please select a date" : "Choose your event date"}
+  />
+  <button type="submit">Submit</button>
+</form>
+```
+
+---
+
+## Accessibility
+
+The DatePicker is built with accessibility in mind:
+
+### Keyboard Support
+- **Tab** — Focus on input field
+- **Enter/Space** — Open calendar when input focused
+- **Arrow keys** — Navigate between dates in calendar
+- **Escape** — Close calendar
+- **Enter** — Select focused date
+
+### ARIA Attributes
+- Input has `aria-haspopup="dialog"` and `aria-expanded`
+- Calendar panel has `role="dialog"` and `aria-label`
+- Dates have appropriate ARIA labels
+
+### Best Practices
+
+```tsx
+// ✅ Good: Descriptive label
+<DatePicker
+  value={date}
+  onChange={setDate}
+  label="Appointment Date"
+  helperText="Select your preferred appointment date"
+/>
+
+// ❌ Bad: No label or context
+<DatePicker value={date} onChange={setDate} />
+
+// ✅ Good: Clear error messages
+<DatePicker
+  value={date}
+  onChange={setDate}
+  error={!!error}
+  helperText={error || "Select a date within the next 30 days"}
+/>
+
+// ✅ Good: Required field indication
+<DatePicker
+  value={date}
+  onChange={setDate}
+  label="Date of Birth"
+  required
+/>
+```
+
+---
+
+## TypeScript
+
+The DatePicker is fully typed:
+
+```tsx
+import { DatePicker } from "@karya_app1/rain-js";
+import type { DatePickerProps } from "@karya_app1/rain-js";
+
+// Custom wrapper component
+const MyDatePicker: React.FC<DatePickerProps> = (props) => {
+  return <DatePicker {...props} />;
+};
+
+// Extend props
+interface CustomDatePickerProps extends Omit<DatePickerProps, 'onChange'> {
+  onDateSelect?: (date: Date) => void;
+}
+
+const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
+  onDateSelect,
+  ...props
+}) => {
+  return (
+    <DatePicker
+      {...props}
+      onChange={(date) => {
+        props.value = date;
+        if (date && onDateSelect) {
+          onDateSelect(date);
+        }
+      }}
+    />
+  );
+};
+```
+
+---
+
+## Tips and Tricks
+
+### Prevent Past Dates
+
+```tsx
+<DatePicker
+  value={date}
+  onChange={setDate}
+  minDate={new Date()}
+  label="Future Date Only"
+/>
+```
+
+### Disable Specific Weekdays
+
+```tsx
+// Disable Sundays
+<DatePicker
+  value={date}
+  onChange={setDate}
+  disabledDates={(d) => d.getDay() === 0}
+/>
+```
+
+### Format Date for API
+
+```tsx
+const handleChange = (newDate: Date | null) => {
+  setDate(newDate);
+  
+  // Convert to ISO string for API
+  if (newDate) {
+    const isoString = newDate.toISOString();
+    console.log("Sending to API:", isoString);
+  }
+};
+```
+
+### Pre-select Today
+
+```tsx
+const [date, setDate] = useState<Date | null>(new Date());
+
+<DatePicker
+  value={date}
+  onChange={setDate}
+  label="Date (defaults to today)"
+/>
+```
+
+---
+
+## Troubleshooting
+
+### Calendar not opening
+- Ensure component is not `disabled`
+- Check that you're not in `inline` mode
+- Verify click handler is not being prevented by parent
+
+### Wrong date format displayed
+- Set `locale` prop for region-specific formatting
+- Use `format` prop for custom formatting
+- Check browser locale settings
+
+### Disabled dates not working
+- Verify `disabledDates` function returns boolean
+- Check date comparison logic (use `.toDateString()` for date-only comparison)
+- Ensure `minDate`/`maxDate` are Date objects, not strings
+
+### Selected date not updating
+- Verify `onChange` is calling state setter
+- Check that `value` prop is connected to state
+- Ensure state is of type `Date | null`, not string
+
+---
+
+## Summary
+
+The DatePicker component provides intuitive date selection:
+
+**Key Features:**
+- Visual calendar with month/year navigation
+- Date constraints (min/max/disabled)
+- Inline or popup modes
+- Locale support and custom formatting
+- Theme system for customization
+- Form integration with validation
+- Keyboard accessible
+
+**Common Use Cases:**
+- Birth date selection
+- Appointment booking
+- Date range pickers (start/end)
+- Event scheduling
+- Filtering by date
+
+**Best Practices:**
+- Always provide a `label` for accessibility
+- Use `minDate`/`maxDate` to prevent invalid dates
+- Show helpful `helperText` for format/requirements
+- Mark fields as `required` when mandatory
+- Use `error` state with validation messages

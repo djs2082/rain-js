@@ -22,6 +22,8 @@ export * from "./components/Loader";
 export * from "./http/httpClient";
 export * from "./components/PriorityBadge";
 export * from "./components/PriorityBadge";
+export * from "./components/DatePicker";
+export * from "./components/TimePicker";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";
@@ -54,3 +56,8 @@ export type { ResponsiveContextType } from "./context/ResponsiveContext";
 export { Icon } from "./components/Icon";
 export { IconThemeProvider } from "./theme/iconProvider";
 export type { IconTheme } from "./theme/iconTypes";
+// Date/Time pickers theming
+export { DatePickerThemeProvider } from "./theme/datePickerProvider";
+export type { DatePickerTheme, DatePickerThemeOverride } from "./theme/datePickerTypes";
+export { TimePickerThemeProvider } from "./theme/timePickerProvider";
+export type { TimePickerTheme, TimePickerThemeOverride } from "./theme/timePickerTypes";

@@ -1,0 +1,827 @@
+import { Meta } from "@storybook/blocks";
+import { Icon } from "../components/Icon";
+import { IconThemeProvider } from "../theme/iconProvider";
+
+<Meta title="Docs/Icon" />
+
+# Icon — Complete Guide
+
+A simple, themed icon component with a curated collection of commonly-used SVG icons. Perfect for buttons, navigation, status indicators, and any UI element that needs visual symbols.
+
+**What makes this Icon component special?**
+- **Curated icon collection** — Hand-picked, commonly-used icons ready to use
+- **Consistent sizing** — All icons rendered at uniform size
+- **Theme system** — Centrally control size and color across all icons
+- **Simple API** — Just pass the icon name, no imports needed
+- **Customizable** — Override size and color per-icon when needed
+- **Tree-shakeable** — Only icons you use are included in your bundle
+
+**Why use this Icon?**
+- No need to manage individual SVG imports
+- Consistent icon sizing across your app
+- Easy to swap icons by changing the `name` prop
+- Works great with Button component (startIcon/endIcon)
+- Theme provider for app-wide styling
+
+---
+
+## Quick Start
+
+Here's the simplest way to use an Icon:
+
+```tsx
+import { Icon } from "@karya_app1/rain-js";
+
+function App() {
+  return <Icon name="home" />;
+}
+```
+
+**What's happening here?**
+1. Import the Icon component
+2. Pass the `name` prop with an icon key (e.g., "home", "search", "user")
+3. Icon renders at the default size with default color
+
+---
+
+## How it Works — Core Concepts
+
+### 1. **Icon collection**
+The component includes a built-in collection of common icons:
+- **Navigation**: home, menu, close, back, forward
+- **Actions**: search, settings, edit, delete, add, remove
+- **Social**: github, twitter, linkedin, facebook
+- **Status**: check, error, warning, info
+- **Communication**: email, bell (notifications), share
+- **User**: user, lock, eye, cog
+
+### 2. **Name-based selection**
+Instead of importing individual icon components, you just pass a string name:
+```tsx
+<Icon name="search" />  // Renders search icon
+<Icon name="user" />    // Renders user icon
+```
+
+### 3. **Theme system**
+Use `IconThemeProvider` to set default size and color for all icons in a section:
+```tsx
+<IconThemeProvider theme={{ size: "24px", color: "#3b82f6" }}>
+  <Icon name="home" />
+  <Icon name="search" />
+</IconThemeProvider>
+```
+
+### 4. **Per-icon overrides**
+Override theme values for individual icons:
+```tsx
+<Icon name="home" size="32px" color="#ef4444" />
+```
+
+### 5. **Works with other components**
+Icons integrate seamlessly with Button and other components:
+```tsx
+<Button startIcon={<Icon name="search" />}>Search</Button>
+```
+
+---
+
+## API Reference — IconProps
+
+All the props you can pass to the Icon component:
+
+```tsx
+interface IconProps extends React.SVGProps<SVGSVGElement> {
+  name: IconKey;
+  size?: string | number;
+  color?: string;
+  // Plus all native SVG attributes: className, style, onClick, etc.
+}
+```
+
+### Required Props
+
+#### `name` (required)
+- **Type:** String (one of the available icon keys)
+- **What it is:** The identifier for which icon to render
+- **Available icons:**
+  - `"home"` — House icon
+  - `"search"` — Magnifying glass
+  - `"user"` — Person silhouette
+  - `"settings"` — Gear icon
+  - `"menu"` — Hamburger menu (three lines)
+  - `"close"` — X icon
+  - `"bell"` — Notification bell
+  - `"info"` — Information circle
+  - `"github"` — GitHub logo
+  - `"twitter"` — Twitter/X logo
+  - `"linkedin"` — LinkedIn logo
+  - `"cog"` — Settings cog
+  - `"email"` — Email envelope
+  - `"share"` — Share icon
+  - `"check"` — Checkmark
+  - `"error"` — Error/X circle
+  - `"warning"` — Warning triangle
+  - _(More icons available in the collection)_
+- **Examples:**
+  ```tsx
+  // Basic icons
+  <Icon name="home" />
+  <Icon name="search" />
+  <Icon name="user" />
+  
+  // Social icons
+  <Icon name="github" />
+  <Icon name="twitter" />
+  <Icon name="linkedin" />
+  
+  // Status icons
+  <Icon name="check" />
+  <Icon name="error" />
+  <Icon name="warning" />
+  ```
+
+### Optional Props
+
+#### `size` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets the width and height of the icon
+- **Default:** From theme (usually "24px")
+- **Examples:**
+  ```tsx
+  // Small icon
+  <Icon name="home" size="16px" />
+  
+  // Medium icon (default)
+  <Icon name="home" size="24px" />
+  
+  // Large icon
+  <Icon name="home" size="32px" />
+  
+  // Number (converted to pixels)
+  <Icon name="home" size={48} />
+  
+  // CSS units
+  <Icon name="home" size="2rem" />
+  <Icon name="home" size="1.5em" />
+  ```
+
+#### `color` (optional)
+- **Type:** String (CSS color value)
+- **What it does:** Sets the icon color
+- **Default:** From theme (usually "currentColor" - inherits from parent text color)
+- **Examples:**
+  ```tsx
+  // Named colors
+  <Icon name="check" color="green" />
+  <Icon name="error" color="red" />
+  
+  // Hex colors
+  <Icon name="home" color="#3b82f6" />
+  
+  // RGB/RGBA
+  <Icon name="info" color="rgba(59, 130, 246, 0.5)" />
+  
+  // CSS variables
+  <Icon name="user" color="var(--primary-color)" />
+  
+  // currentColor (inherits text color)
+  <div style={{ color: "#ef4444" }}>
+    <Icon name="warning" color="currentColor" />
+  </div>
+  ```
+
+### Native SVG Props
+
+Since Icon extends `React.SVGProps<SVGSVGElement>`, you get all native SVG attributes:
+
+#### `className` (optional)
+- **Type:** String
+- **What it does:** Adds CSS class names
+- **Example:**
+  ```tsx
+  <Icon name="home" className="my-icon" />
+  ```
+
+#### `style` (optional)
+- **Type:** React.CSSProperties object
+- **What it does:** Applies custom inline styles
+- **Example:**
+  ```tsx
+  <Icon 
+    name="search" 
+    style={{ cursor: "pointer", marginRight: "8px" }}
+  />
+  ```
+
+#### `onClick` (optional)
+- **Type:** Function
+- **What it does:** Click handler for the icon
+- **Example:**
+  ```tsx
+  <Icon 
+    name="close" 
+    onClick={() => setOpen(false)}
+    style={{ cursor: "pointer" }}
+  />
+  ```
+
+#### Other SVG attributes:
+- `aria-label` — Accessible label
+- `role` — ARIA role
+- `focusable` — Keyboard focusability
+- `stroke` — Stroke color (for icons that use stroke)
+- `strokeWidth` — Stroke width
+- `fill` — Fill color (usually controlled by `color` prop)
+- `opacity` — Transparency
+
+---
+
+## IconThemeProvider — Customizing Appearance
+
+Use the theme provider to set default size and color for all icons in a section.
+
+### Basic Usage
+
+```tsx
+import { Icon, IconThemeProvider } from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <IconThemeProvider theme={{ size: "28px", color: "#3b82f6" }}>
+      <Icon name="home" />
+      <Icon name="search" />
+      <Icon name="settings" />
+    </IconThemeProvider>
+  );
+}
+```
+
+### Theme Structure
+
+```tsx
+interface IconTheme {
+  size: string;   // Default size for all icons (e.g., "24px", "2rem")
+  color: string;  // Default color (e.g., "#000", "currentColor")
+}
+```
+
+### Theme Properties Explained
+
+#### `size`
+- **What it does:** Sets the default size for all icons
+- **Default:** `"24px"`
+- **Examples:**
+  ```tsx
+  // Small icons throughout section
+  <IconThemeProvider theme={{ size: "16px" }}>
+    <Icon name="home" />
+    <Icon name="search" />
+  </IconThemeProvider>
+  
+  // Large icons
+  <IconThemeProvider theme={{ size: "32px" }}>
+    <Icon name="home" />
+    <Icon name="search" />
+  </IconThemeProvider>
+  
+  // Using rem units
+  <IconThemeProvider theme={{ size: "1.5rem" }}>
+    <Icon name="home" />
+  </IconThemeProvider>
+  ```
+
+#### `color`
+- **What it does:** Sets the default color for all icons
+- **Default:** `"currentColor"` (inherits from parent text color)
+- **Examples:**
+  ```tsx
+  // Blue icons
+  <IconThemeProvider theme={{ color: "#3b82f6" }}>
+    <Icon name="home" />
+    <Icon name="search" />
+  </IconThemeProvider>
+  
+  // Inherit text color (default behavior)
+  <div style={{ color: "#10b981" }}>
+    <IconThemeProvider theme={{ color: "currentColor" }}>
+      <Icon name="check" />
+    </IconThemeProvider>
+  </div>
+  
+  // Custom brand color
+  <IconThemeProvider theme={{ color: "#8b5cf6" }}>
+    <Icon name="twitter" />
+    <Icon name="github" />
+    <Icon name="linkedin" />
+  </IconThemeProvider>
+  ```
+
+### Nested Theme Providers
+
+You can nest providers to have different themes in different sections:
+
+```tsx
+<IconThemeProvider theme={{ size: "24px", color: "#111827" }}>
+  <Icon name="home" /> {/* 24px, dark */}
+  
+  <IconThemeProvider theme={{ size: "32px", color: "#3b82f6" }}>
+    <Icon name="search" /> {/* 32px, blue */}
+  </IconThemeProvider>
+  
+  <Icon name="settings" /> {/* Back to 24px, dark */}
+</IconThemeProvider>
+```
+
+---
+
+## Common Examples
+
+### Navigation Icons
+
+```tsx
+<nav style={{ display: "flex", gap: "16px" }}>
+  <a href="/">
+    <Icon name="home" size="24px" />
+  </a>
+  <a href="/search">
+    <Icon name="search" size="24px" />
+  </a>
+  <a href="/settings">
+    <Icon name="settings" size="24px" />
+  </a>
+  <a href="/profile">
+    <Icon name="user" size="24px" />
+  </a>
+</nav>
+```
+
+### Buttons with Icons
+
+```tsx
+import { Button } from "@karya_app1/rain-js";
+
+<div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+  <Button 
+    variant="contained" 
+    startIcon={<Icon name="search" />}
+  >
+    Search
+  </Button>
+  
+  <Button 
+    variant="outlined" 
+    startIcon={<Icon name="email" />}
+  >
+    Send Email
+  </Button>
+  
+  <Button 
+    variant="text" 
+    endIcon={<Icon name="share" />}
+  >
+    Share
+  </Button>
+</div>
+```
+
+### Status Indicators
+
+```tsx
+<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#10b981" }}>
+    <Icon name="check" size="20px" />
+    <span>Success: Operation completed</span>
+  </div>
+  
+  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#ef4444" }}>
+    <Icon name="error" size="20px" />
+    <span>Error: Something went wrong</span>
+  </div>
+  
+  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#f59e0b" }}>
+    <Icon name="warning" size="20px" />
+    <span>Warning: Please check your input</span>
+  </div>
+  
+  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#06b6d4" }}>
+    <Icon name="info" size="20px" />
+    <span>Info: New features available</span>
+  </div>
+</div>
+```
+
+### Social Media Links
+
+```tsx
+<IconThemeProvider theme={{ size: "28px", color: "#6b7280" }}>
+  <div style={{ display: "flex", gap: "16px" }}>
+    <a 
+      href="https://github.com" 
+      target="_blank"
+      style={{ color: "inherit" }}
+    >
+      <Icon name="github" />
+    </a>
+    <a 
+      href="https://twitter.com" 
+      target="_blank"
+      style={{ color: "inherit" }}
+    >
+      <Icon name="twitter" />
+    </a>
+    <a 
+      href="https://linkedin.com" 
+      target="_blank"
+      style={{ color: "inherit" }}
+    >
+      <Icon name="linkedin" />
+    </a>
+  </div>
+</IconThemeProvider>
+```
+
+### Clickable Icon Buttons
+
+```tsx
+function IconButtons() {
+  const [notifications, setNotifications] = React.useState(3);
+  
+  const iconButtonStyle: React.CSSProperties = {
+    padding: "8px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    border: "1px solid #e5e7eb",
+    background: "transparent",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "background 150ms ease"
+  };
+  
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <button 
+        style={iconButtonStyle}
+        onClick={() => alert("Search clicked")}
+        aria-label="Search"
+      >
+        <Icon name="search" size="20px" />
+      </button>
+      
+      <button 
+        style={{ ...iconButtonStyle, position: "relative" }}
+        onClick={() => setNotifications(0)}
+        aria-label={`${notifications} notifications`}
+      >
+        <Icon name="bell" size="20px" />
+        {notifications > 0 && (
+          <span style={{
+            position: "absolute",
+            top: "4px",
+            right: "4px",
+            background: "#ef4444",
+            color: "white",
+            borderRadius: "50%",
+            width: "16px",
+            height: "16px",
+            fontSize: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            {notifications}
+          </span>
+        )}
+      </button>
+      
+      <button 
+        style={iconButtonStyle}
+        onClick={() => alert("Settings clicked")}
+        aria-label="Settings"
+      >
+        <Icon name="cog" size="20px" />
+      </button>
+    </div>
+  );
+}
+```
+
+### Icon Gallery/Showcase
+
+```tsx
+const iconNames = [
+  "home", "search", "user", "settings", "menu", "close",
+  "bell", "info", "github", "twitter", "linkedin",
+  "email", "share", "check", "error", "warning"
+];
+
+<div style={{ 
+  display: "grid", 
+  gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+  gap: "16px" 
+}}>
+  {iconNames.map((name) => (
+    <div 
+      key={name}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "8px",
+        padding: "16px",
+        border: "1px solid #e5e7eb",
+        borderRadius: "8px"
+      }}
+    >
+      <Icon name={name as any} size="32px" />
+      <span style={{ fontSize: "12px", color: "#6b7280" }}>{name}</span>
+    </div>
+  ))}
+</div>
+```
+
+### Animated Icons
+
+```tsx
+<div style={{ display: "flex", gap: "16px" }}>
+  {/* Rotating icon */}
+  <Icon 
+    name="cog" 
+    size="32px"
+    style={{
+      animation: "spin 2s linear infinite"
+    }}
+  />
+  
+  {/* Pulsing icon */}
+  <Icon 
+    name="bell" 
+    size="32px"
+    color="#ef4444"
+    style={{
+      animation: "pulse 2s ease-in-out infinite"
+    }}
+  />
+</div>
+
+<style>{`
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+`}</style>
+```
+
+---
+
+## Accessibility
+
+The Icon component supports accessibility features:
+
+### ARIA Labels
+
+Always provide labels for interactive icons:
+
+```tsx
+// ✅ Good: Icon button with aria-label
+<button aria-label="Search">
+  <Icon name="search" />
+</button>
+
+// ❌ Bad: Icon button without label
+<button>
+  <Icon name="search" />
+</button>
+
+// ✅ Good: Icon with visible text
+<button>
+  <Icon name="search" />
+  <span>Search</span>
+</button>
+
+// ✅ Good: Decorative icon (hidden from screen readers)
+<div>
+  <Icon name="check" aria-hidden="true" />
+  <span>Success</span>
+</div>
+```
+
+### Keyboard Accessibility
+
+Make clickable icons keyboard accessible:
+
+```tsx
+// ✅ Good: Using button element
+<button onClick={handleClick} aria-label="Delete">
+  <Icon name="close" />
+</button>
+
+// ✅ Good: Div with proper attributes
+<div
+  role="button"
+  tabIndex={0}
+  onClick={handleClick}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      handleClick();
+    }
+  }}
+  aria-label="Delete"
+>
+  <Icon name="close" />
+</div>
+```
+
+### Focus Indicators
+
+Ensure clickable icons have visible focus states:
+
+```tsx
+<button
+  style={{
+    padding: "8px",
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    background: "transparent",
+    cursor: "pointer"
+  }}
+  onFocus={(e) => {
+    e.currentTarget.style.outline = "2px solid #3b82f6";
+    e.currentTarget.style.outlineOffset = "2px";
+  }}
+  onBlur={(e) => {
+    e.currentTarget.style.outline = "none";
+  }}
+  aria-label="Menu"
+>
+  <Icon name="menu" />
+</button>
+```
+
+---
+
+## TypeScript
+
+The Icon component is fully typed:
+
+```tsx
+import { Icon } from "@karya_app1/rain-js";
+import type { IconProps, IconKey } from "@karya_app1/rain-js";
+
+// Custom icon wrapper
+const MyIcon: React.FC<IconProps> = (props) => {
+  return <Icon {...props} />;
+};
+
+// Type-safe icon name
+const iconName: IconKey = "home";
+<Icon name={iconName} />
+
+// Extend props
+interface CustomIconProps extends IconProps {
+  badge?: number;
+}
+
+const BadgedIcon: React.FC<CustomIconProps> = ({ badge, ...props }) => {
+  return (
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <Icon {...props} />
+      {badge && badge > 0 && (
+        <span style={{
+          position: "absolute",
+          top: "-4px",
+          right: "-4px",
+          background: "red",
+          color: "white",
+          borderRadius: "50%",
+          width: "16px",
+          height: "16px",
+          fontSize: "10px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          {badge}
+        </span>
+      )}
+    </div>
+  );
+};
+
+// Usage
+<BadgedIcon name="bell" badge={5} />
+```
+
+---
+
+## Tips and Tricks
+
+### Inherit Text Color
+
+Use `color="currentColor"` to make icons match surrounding text:
+
+```tsx
+<div style={{ color: "#3b82f6" }}>
+  <Icon name="info" color="currentColor" />
+  <span>This icon matches the text color</span>
+</div>
+```
+
+### Icon Tooltips
+
+Add tooltips to icon buttons:
+
+```tsx
+<button title="Search" aria-label="Search">
+  <Icon name="search" />
+</button>
+```
+
+### Responsive Icon Sizes
+
+```tsx
+function ResponsiveIcon() {
+  const [size, setSize] = React.useState("24px");
+  
+  React.useEffect(() => {
+    const updateSize = () => {
+      setSize(window.innerWidth < 640 ? "20px" : "24px");
+    };
+    
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+  
+  return <Icon name="home" size={size} />;
+}
+```
+
+### Icon as Link
+
+```tsx
+<a href="/home" style={{ color: "#3b82f6", textDecoration: "none" }}>
+  <Icon name="home" size="24px" />
+</a>
+```
+
+---
+
+## Troubleshooting
+
+### Icon not showing
+- Check that the `name` prop matches an available icon key
+- Verify the icon name is spelled correctly (case-sensitive)
+- Ensure size is not set to 0 or very small
+
+### Icon wrong size
+- Check if theme provider is setting default size
+- Verify `size` prop value (string should include units)
+- Check parent container for overflow/clipping
+
+### Icon wrong color
+- Check if theme provider is setting default color
+- Verify `color` prop value
+- Ensure parent doesn't have color that overrides `currentColor`
+- Check if SVG has hardcoded fill/stroke values
+
+### Icon not clickable
+- Wrap icon in a `<button>` or clickable element
+- Add `cursor: pointer` style to indicate clickability
+- Add `onClick` handler to parent element, not directly to Icon
+
+---
+
+## Summary
+
+The Icon component provides easy access to common UI icons:
+
+**Key Features:**
+- Curated collection of commonly-used icons
+- Name-based selection (no individual imports)
+- Theme provider for consistent sizing/coloring
+- Per-icon size and color overrides
+- Works with Button and other components
+- Full TypeScript support
+- Accessible with ARIA support
+
+**Available Icon Categories:**
+- Navigation (home, menu, close)
+- Actions (search, settings, edit)
+- Social (github, twitter, linkedin)
+- Status (check, error, warning, info)
+- Communication (email, bell, share)
+- User (user, lock, eye)
+
+**Best Practices:**
+- Provide `aria-label` for interactive icons
+- Use semantic HTML (`<button>`) for clickable icons
+- Set `aria-hidden="true"` for purely decorative icons
+- Use `currentColor` to inherit text color
+- Maintain consistent icon sizes throughout app
+- Add focus indicators for keyboard users

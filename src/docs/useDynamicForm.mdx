@@ -1,0 +1,885 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/useDynamicForm" />
+
+# useDynamicForm — Complete Guide
+
+The `useDynamicForm` hook is a powerful tool that helps you build forms quickly by defining them with a simple configuration object instead of writing repetitive JSX. Think of it as a form builder that handles all the boring stuff (state management, validation, error display) while you just describe what fields you want.
+
+**What makes it special?**
+- Works with multiple field types: regular inputs, date pickers, and time pickers
+- Built-in validation that connects to your validator rules
+- Smart error handling and display
+- Can swap out any component with your own custom version
+- Automatically manages form state for you
+- Can sync with external stores like Zustand
+
+This guide explains every single prop and option in detail with examples you can copy and use.
+
+## Quick start
+
+Here's the simplest possible example to get you started. This creates a form with three fields: an email input, a date picker, and a time picker.
+
+```tsx
+import React from "react";
+import { useDynamicForm } from "../hooks/useDynamicForm";
+
+export default function QuickExample() {
+  const { form, values } = useDynamicForm({
+    fields: [
+      { 
+        name: "email", 
+        label: "Email", 
+        type: "email", 
+        placeholder: "you@site.com", 
+        required: true, 
+        inputProps: { floatingLabel: true } 
+      },
+      { 
+        name: "startDate", 
+        label: "Start date", 
+        type: "date", 
+        defaultValue: null, 
+        datePickerProps: { variant: "outlined", floatingLabel: true } 
+      },
+      { 
+        name: "startTime", 
+        label: "Start time", 
+        type: "time", 
+        defaultValue: null, 
+        timePickerProps: { format: "12h", minuteStep: 15 } 
+      }
+    ],
+    submit: {
+      label: "Create",
+      onSubmit: async (vals) => console.log("submitted", vals)
+    }
+  });
+
+  return (
+    <div>
+      {form}
+      <pre>{JSON.stringify(values, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+**What's happening here?**
+- We pass a configuration object to `useDynamicForm`
+- The hook gives us back a `form` element (ready to render) and `values` (the current form data)
+- Each field in the `fields` array becomes a form control
+- The hook automatically handles all state, validation, and rendering
+
+## How it works — Core concepts
+
+### 1. Configuration-based approach
+Instead of writing JSX for each field, you describe your form with a JavaScript object. The hook reads this configuration and builds the form for you.
+
+### 2. Smart field rendering
+The hook looks at each field's `type` property and decides what to render:
+- **Regular types** (text, email, password, tel, etc.) → Renders the `Input` component
+- **"date"** → Renders the `DatePicker` component
+- **"time"** → Renders the `TimePicker` component
+
+### 3. Automatic state management
+The hook manages all form values internally. When a user types or selects something, the hook updates the state automatically. You can read the current values from the `values` object.
+
+### 4. Built-in validation
+You can attach validation rules to any field. The hook runs these rules when the user submits the form and shows error messages automatically.
+
+### 5. Component flexibility
+Don't like the default Input, DatePicker, or TimePicker? You can replace any of them with your own custom components through the `options` parameter.
+
+## Complete API Reference
+
+### useDynamicForm(config, options)
+
+This is the main hook function. You call it with two parameters:
+
+**Parameters:**
+1. **config** (required) — An object describing your form (fields, initial values, submit behavior)
+2. **options** (optional) — An object for customizing components, styling, and advanced features
+
+**Returns:**
+An object with these properties:
+
+#### `form`
+- **Type:** React element (JSX)
+- **What it is:** The complete rendered form, ready to display
+- **Usage:** Just put this in your JSX: `return <div>{form}</div>`
+- **What's inside:** All your fields wrapped in a `<form>` tag, plus validation and error handling
+
+#### `values`
+- **Type:** Object with field names as keys
+- **What it is:** The current value of every field in your form
+- **Usage:** Read this to see what the user has entered: `console.log(values.email)`
+- **Example:** `{ email: "user@test.com", startDate: Date object or null, startTime: Date object or null }`
+
+#### `setValue(name, value)`
+- **Type:** Function
+- **Parameters:**
+  - `name` — The field name (string)
+  - `value` — The new value to set
+- **What it does:** Programmatically change one field's value
+- **When to use:** When you need to update a field from your code, not from user input
+- **Example:** `setValue("email", "admin@example.com")`
+
+#### `setValues(newValues)`
+- **Type:** Function
+- **Parameters:**
+  - `newValues` — An object with multiple field values
+- **What it does:** Update many fields at once
+- **When to use:** When you want to reset the form or load data from an API
+- **Example:** `setValues({ email: "user@test.com", startDate: new Date() })`
+
+#### `errors`
+- **Type:** Object mapping field names to error messages
+- **What it is:** Contains error messages for fields that failed validation
+- **Usage:** Mostly handled automatically (errors show below fields), but you can read it if needed
+- **Example:** `{ email: "Invalid email format", startDate: "Date is required" }`
+
+#### `handleSubmit(event)`
+- **Type:** Function
+- **Parameters:**
+  - `event` — The form submit event
+- **What it does:** Validates all fields and calls your `onSubmit` if everything is valid
+- **When to use:** This is already wired up to the form automatically, you rarely need to call it
+- **Note:** Prevents the default form submission (no page reload)
+
+#### `submit()`
+- **Type:** Async function
+- **Returns:** `{ ok: true }` if valid, or `{ ok: false, errors: {...} }` if validation fails
+- **What it does:** Programmatically trigger form validation and submission
+- **When to use:** When you want to submit the form from a button outside the form, or from code
+- **Example:**
+  ```tsx
+  const result = await submit();
+  if (result.ok) {
+    console.log("Form is valid!");
+  } else {
+    console.log("Errors:", result.errors);
+  }
+  ```
+
+#### `clearFieldError(name)`
+- **Type:** Function
+- **Parameters:**
+  - `name` — The field name (string)
+- **What it does:** Removes the error message for one specific field
+- **When to use:** When you want to manually clear an error after the user fixes something
+- **Example:** `clearFieldError("email")`
+
+#### `clearAllErrors()`
+- **Type:** Function
+- **What it does:** Removes all error messages from all fields
+- **When to use:** When resetting the form or after a successful operation
+- **Example:** `clearAllErrors()`
+
+---
+
+### DynamicFormConfig — The main configuration object
+
+This object describes your entire form. Here's what you can configure:
+
+```ts
+interface DynamicFormConfig<TValues = Record<string, any>> {
+  fields: Array<DynamicFieldConfig<TValues>>;
+  initialValues?: Partial<TValues>;
+  submit?: {
+    label?: string;
+    onSubmit?: (values: TValues, event?: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
+    disabled?: boolean | ((values: TValues) => boolean);
+  };
+  onChange?: (values: TValues, delta?: { name: keyof TValues & string; value: any }) => void;
+}
+```
+
+#### `fields` (required)
+- **Type:** Array of field configuration objects
+- **What it is:** The list of all form fields you want to display
+- **Usage:** Each item describes one field (input, date picker, etc.)
+- **Example:**
+  ```tsx
+  fields: [
+    { name: "email", label: "Email", type: "email" },
+    { name: "birthdate", label: "Birth Date", type: "date", defaultValue: null }
+  ]
+  ```
+- **Details:** See the DynamicFieldConfig section below for all field options
+
+#### `initialValues` (optional)
+- **Type:** Object with field names as keys
+- **What it does:** Pre-fills the form with these values when it first loads
+- **When to use:** When editing existing data (like an "Edit Profile" form)
+- **Example:**
+  ```tsx
+  initialValues: {
+    email: "user@example.com",
+    birthdate: new Date("1990-01-01")
+  }
+  ```
+- **Note:** `initialValues` overrides `defaultValue` for any field
+
+#### `submit` (optional)
+- **Type:** Object configuring the submit button and behavior
+- **What it does:** Controls the submit button at the bottom of the form
+- **Properties:**
+  
+  **`submit.label`** (optional)
+  - **Type:** String
+  - **What it is:** The text shown on the submit button
+  - **Default:** "Submit"
+  - **Example:** `label: "Create Account"`
+  
+  **`submit.onSubmit`** (optional)
+  - **Type:** Function that receives form values
+  - **What it does:** Called when the form is submitted successfully (after validation passes)
+  - **Can be async:** Yes, you can use `async/await` to call APIs
+  - **Parameters:**
+    - `values` — All form values as an object
+    - `event` (optional) — The form submit event
+  - **Example:**
+    ```tsx
+    onSubmit: async (values) => {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify(values)
+      });
+      console.log("User created!");
+    }
+    ```
+  
+  **`submit.disabled`** (optional)
+  - **Type:** Boolean or function that returns boolean
+  - **What it does:** Disables the submit button
+  - **Static example:** `disabled: true` — button is always disabled
+  - **Dynamic example:**
+    ```tsx
+    disabled: (values) => !values.email || !values.password
+    ```
+    This disables the button until both email and password are filled
+
+#### `onChange` (optional)
+- **Type:** Function called whenever any field changes
+- **What it does:** Lets you react to field changes in real-time
+- **When to use:** 
+  - Sync form data with external state
+  - Show live preview of form data
+  - Trigger side effects based on field values
+- **Parameters:**
+  - `values` — All current form values
+  - `delta` (optional) — Object with `name` (field that changed) and `value` (new value)
+- **Example:**
+  ```tsx
+  onChange: (values, delta) => {
+    console.log(`${delta.name} changed to ${delta.value}`);
+    console.log("All values:", values);
+    // Maybe update a preview or send to analytics
+  }
+  ```
+
+---
+
+### DynamicFieldConfig — Configuring each field
+
+Each field in your form is described by a configuration object. Here are all the properties you can use:
+
+```ts
+interface DynamicFieldConfig<TValues = Record<string, any>> {
+  name: keyof TValues & string;
+  label?: string;
+  type?: InputProps["type"] | "date" | "time";
+  placeholder?: string;
+  defaultValue?: any;
+  required?: boolean;
+  inputProps?: Omit<InputProps, "value" | "onChange" | "type" | "label" | "defaultValue" | "id">;
+  datePickerProps?: Omit<DatePickerProps, "value" | "onChange" | "label">;
+  timePickerProps?: Omit<TimePickerProps, "value" | "onChange" | "label">;
+  validate?: ((value: any, values: TValues) => string | undefined) | ValidatorKey[];
+  validators?: ValidatorKey[];
+}
+```
+
+#### `name` (required)
+- **Type:** String that matches a key in your form values
+- **What it is:** The unique identifier for this field
+- **Usage:** Used to access the field's value in the `values` object
+- **Example:**
+  ```tsx
+  { name: "email" }  // Access value via values.email
+  ```
+- **Important:** Must be unique across all fields in the form
+
+#### `label` (optional)
+- **Type:** String
+- **What it is:** The text shown above the field
+- **Default:** No label is shown
+- **Example:**
+  ```tsx
+  { name: "email", label: "Email Address" }
+  ```
+
+#### `type` (optional)
+- **Type:** String specifying the field type
+- **What it does:** Determines which component to render
+- **Default:** `"text"` (renders an Input)
+- **Valid values:**
+  - **For Input component:** `"text"`, `"email"`, `"password"`, `"number"`, `"tel"`, `"url"`, `"search"`
+  - **For DatePicker:** `"date"`
+  - **For TimePicker:** `"time"`
+- **Examples:**
+  ```tsx
+  { name: "email", type: "email" }       // Email input with validation
+  { name: "password", type: "password" }  // Password field (hidden text)
+  { name: "birthdate", type: "date" }     // DatePicker
+  { name: "appointment", type: "time" }   // TimePicker
+  { name: "age", type: "number" }         // Number input
+  ```
+
+#### `placeholder` (optional)
+- **Type:** String
+- **What it is:** Hint text shown when field is empty
+- **Example:**
+  ```tsx
+  { name: "email", placeholder: "Enter your email" }
+  ```
+
+#### `defaultValue` (optional)
+- **Type:** Any value appropriate for the field type
+- **What it does:** Sets the initial value for this field (unless overridden by `initialValues`)
+- **When to use:** When you want a field to start with a specific value
+- **Important distinction:**
+  - Use `null` for optional DatePicker/TimePicker fields (no date/time selected)
+  - Use `""` (empty string) for optional text inputs
+  - Use `undefined` if you want the field truly empty initially
+- **Examples:**
+  ```tsx
+  // Text input with default text
+  { name: "country", defaultValue: "USA" }
+  
+  // Date picker starting empty (no date selected)
+  { name: "birthdate", type: "date", defaultValue: null }
+  
+  // Date picker with a default date
+  { name: "startDate", type: "date", defaultValue: new Date() }
+  
+  // Number input with default value
+  { name: "quantity", type: "number", defaultValue: 1 }
+  ```
+
+#### `required` (optional)
+- **Type:** Boolean
+- **What it does:** Makes the field mandatory (shows red asterisk, validates presence)
+- **Default:** `false`
+- **Example:**
+  ```tsx
+  { name: "email", required: true }  // User must fill this in
+  ```
+- **Validation:** Automatically checks if field is non-empty when `required: true`
+
+#### `inputProps` (optional)
+- **Type:** Object with Input component props
+- **What it does:** Passes additional props directly to the Input component
+- **When to use:** To customize the Input's appearance, behavior, or validation
+- **Example:**
+  ```tsx
+  {
+    name: "email",
+    type: "email",
+    inputProps: {
+      color: "primary",
+      variant: "outlined",
+      size: "large",
+      disabled: false,
+      helperText: "We'll never share your email"
+    }
+  }
+  ```
+- **Common props:** `color`, `variant`, `size`, `disabled`, `helperText`, `maxLength`
+
+#### `datePickerProps` (optional)
+- **Type:** Object with DatePicker component props
+- **What it does:** Passes props to the DatePicker when `type: "date"`
+- **When to use:** To customize the calendar picker (constraints, appearance, locale)
+- **Example:**
+  ```tsx
+  {
+    name: "appointment",
+    type: "date",
+    defaultValue: null,
+    datePickerProps: {
+      color: "primary",
+      variant: "outlined",
+      minDate: new Date(),  // Can't pick past dates
+      maxDate: new Date(2025, 11, 31),  // Can't pick after end of 2025
+      disabledDates: [new Date(2024, 11, 25)],  // Christmas is unavailable
+      firstDayOfWeek: 1,  // Week starts on Monday
+      clearable: true,
+      showToday: true,
+      locale: "en-US"
+    }
+  }
+  ```
+- **Common props:** `minDate`, `maxDate`, `disabledDates`, `firstDayOfWeek`, `clearable`, `showToday`, `locale`, `color`, `variant`, `size`
+
+#### `timePickerProps` (optional)
+- **Type:** Object with TimePicker component props
+- **What it does:** Passes props to the TimePicker when `type: "time"`
+- **When to use:** To customize the time picker (format, constraints, intervals)
+- **Example:**
+  ```tsx
+  {
+    name: "meetingTime",
+    type: "time",
+    defaultValue: null,
+    timePickerProps: {
+      format: "12h",  // 12-hour format with AM/PM
+      minuteStep: 15,  // Only show 00, 15, 30, 45 minutes
+      minTime: "09:00",  // Business hours start at 9 AM
+      maxTime: "17:00",  // Business hours end at 5 PM
+      showNow: true,
+      color: "primary",
+      variant: "outlined"
+    }
+  }
+  ```
+- **Common props:** `format` (`"12h"` or `"24h"`), `minuteStep`, `minTime`, `maxTime`, `showNow`, `color`, `variant`, `size`
+
+#### `validate` (optional)
+- **Type:** Custom validation function
+- **What it does:** Runs custom validation logic for this field
+- **When it runs:** On blur and on submit
+- **Return value:** 
+  - Return an error message string if validation fails
+  - Return `undefined` if validation passes
+- **Parameters:**
+  - `value` — The current value of this field
+  - `allValues` — All form values (useful for cross-field validation)
+- **Examples:**
+  ```tsx
+  // Simple validation
+  {
+    name: "age",
+    type: "number",
+    validate: (value) => {
+      if (value < 18) return "Must be 18 or older";
+      return undefined;  // Valid
+    }
+  }
+  
+  // Cross-field validation
+  {
+    name: "confirmEmail",
+    validate: (value, allValues) => {
+      if (value !== allValues.email) {
+        return "Email addresses must match";
+      }
+      return undefined;
+    }
+  }
+  
+  // Async validation (check if username is available)
+  {
+    name: "username",
+    validate: async (value) => {
+      const response = await fetch(`/api/check-username?username=${value}`);
+      const { available } = await response.json();
+      if (!available) return "Username is already taken";
+      return undefined;
+    }
+  }
+  ```
+
+#### `validators` (optional)
+- **Type:** Array of validator rule objects
+- **What it does:** Uses predefined validators (like "email", "minLength", etc.)
+- **When to use:** For common validation patterns without writing custom functions
+- **Requires:** You must pass a `validatorInstance` (like `validator.js`) to `useDynamicForm` options
+- **Example:**
+  ```tsx
+  {
+    name: "email",
+    validators: [
+      { type: "email", message: "Please enter a valid email" }
+    ]
+  }
+  
+  {
+    name: "password",
+    validators: [
+      { type: "minLength", value: 8, message: "Password must be at least 8 characters" },
+      { type: "matches", pattern: /[A-Z]/, message: "Must include an uppercase letter" }
+    ]
+  }
+  ```
+- **Note:** You can use both `validate` and `validators` together; both will run
+
+---
+
+### UseDynamicFormOptions — Advanced customization
+
+These are optional settings you can pass to `useDynamicForm` to customize behavior:
+
+```ts
+interface UseDynamicFormOptions<TValues = Record<string, any>> {
+  InputComponent?: React.ComponentType<InputProps>;
+  DatePickerComponent?: React.ComponentType<DatePickerProps>;
+  TimePickerComponent?: React.ComponentType<TimePickerProps>;
+  ButtonComponent?: React.ComponentType<ButtonProps>;
+  zustandStore?: MinimalZustandStore<TValues>;
+  formProps?: React.FormHTMLAttributes<HTMLFormElement>;
+  fieldsGroupStyle?: React.CSSProperties;
+  fieldsGroupClassName?: string;
+  validatorRules?: Partial<Record<ValidatorKey, ValidationRule>>;
+  validatorInstance?: ReturnType<typeof useFormFieldValidator>;
+}
+```
+
+#### `InputComponent` (optional)
+- **Type:** Custom React component matching `InputProps` interface
+- **What it does:** Replaces the default Input component with your own
+- **When to use:** When you want to use a different input library or custom component
+- **Example:**
+  ```tsx
+  import { MyCustomInput } from "./MyCustomInput";
+  
+  const { form, values } = useDynamicForm(config, {
+    InputComponent: MyCustomInput
+  });
+  ```
+- **Requirements:** Your component must accept all `InputProps` (value, onChange, label, error, etc.)
+
+#### `DatePickerComponent` (optional)
+- **Type:** Custom React component matching `DatePickerProps` interface
+- **What it does:** Replaces the default DatePicker with your own
+- **When to use:** When you need a different date picker library
+- **Example:**
+  ```tsx
+  import { MyDatePicker } from "./MyDatePicker";
+  
+  const { form } = useDynamicForm(config, {
+    DatePickerComponent: MyDatePicker
+  });
+  ```
+
+#### `TimePickerComponent` (optional)
+- **Type:** Custom React component matching `TimePickerProps` interface
+- **What it does:** Replaces the default TimePicker with your own
+- **When to use:** When you need a different time picker library
+
+#### `ButtonComponent` (optional)
+- **Type:** Custom React component matching `ButtonProps` interface
+- **What it does:** Replaces the default submit Button with your own
+- **When to use:** When you want custom button styling or behavior
+
+#### `zustandStore` (optional)
+- **Type:** Zustand store instance
+- **What it does:** Syncs form values with a Zustand store automatically
+- **When to use:** When you need form state accessible across your app
+- **Example:**
+  ```tsx
+  import create from "zustand";
+  
+  const useFormStore = create((set) => ({
+    formData: {},
+    setFormData: (data) => set({ formData: data })
+  }));
+  
+  function MyForm() {
+    const formStore = useFormStore();
+    
+    const { form, values } = useDynamicForm(config, {
+      zustandStore: formStore
+    });
+    
+    // Now values are synced with formStore.formData
+    return form;
+  }
+  ```
+- **Requirements:** Store must have `setState` method (standard Zustand store)
+
+#### `formProps` (optional)
+- **Type:** HTML form element attributes
+- **What it does:** Passes props directly to the `<form>` element
+- **When to use:** To customize form behavior (autocomplete, noValidate, etc.)
+- **Example:**
+  ```tsx
+  const { form } = useDynamicForm(config, {
+    formProps: {
+      autoComplete: "off",
+      noValidate: true,
+      className: "my-custom-form",
+      id: "registration-form"
+    }
+  });
+  ```
+
+#### `fieldsGroupStyle` (optional)
+- **Type:** React CSSProperties object
+- **What it does:** Applies inline styles to the container wrapping all fields
+- **When to use:** To control spacing, layout, or appearance of the fields group
+- **Example:**
+  ```tsx
+  const { form } = useDynamicForm(config, {
+    fieldsGroupStyle: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "20px",
+      padding: "20px"
+    }
+  });
+  ```
+
+#### `fieldsGroupClassName` (optional)
+- **Type:** String
+- **What it does:** Adds CSS class to the fields container
+- **When to use:** To apply styles via CSS classes instead of inline styles
+- **Example:**
+  ```tsx
+  const { form } = useDynamicForm(config, {
+    fieldsGroupClassName: "form-fields-grid"
+  });
+  ```
+  ```css
+  /* In your CSS file */
+  .form-fields-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  ```
+
+#### `validatorRules` (optional)
+- **Type:** Object mapping validator names to validation rules
+- **What it does:** Defines custom validation rules that fields can reference
+- **When to use:** When you want reusable validation logic across multiple forms
+- **Example:**
+  ```tsx
+  const { form } = useDynamicForm(config, {
+    validatorRules: {
+      email: {
+        validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+        message: "Invalid email format"
+      },
+      strongPassword: {
+        validate: (value) => value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value),
+        message: "Password must be 8+ chars with uppercase and number"
+      }
+    }
+  });
+  
+  // Then in your field config:
+  {
+    name: "email",
+    validators: [{ type: "email" }]
+  }
+  ```
+
+#### `validatorInstance` (optional)
+- **Type:** Return value from `useFormFieldValidator` hook
+- **What it does:** Integrates with the form's validation system
+- **When to use:** For advanced validation scenarios with custom validator instances
+- **Note:** Most users won't need this; it's for advanced use cases
+
+---
+
+## Field types and rendering
+
+The hook automatically renders the right component based on the field's `type` property:
+
+- **Input (default):** For types like `"text"`, `"email"`, `"password"`, `"number"`, `"tel"`, `"url"`, `"search"`
+- **DatePicker:** When `type: "date"`
+- **TimePicker:** When `type: "time"`
+
+The hook automatically forwards `required`, `error`, and `helperText` props to all field components, so validation works seamlessly across all field types.
+
+---
+
+### Example: Text inputs only
+
+
+```tsx
+const { form } = useDynamicForm({
+  fields: [
+    { name: "firstName", label: "First name", placeholder: "Jane", required: true, inputProps: { floatingLabel: true } },
+    { name: "email", label: "Email", type: "email", placeholder: "you@site.com", inputProps: { format: "email", floatingLabel: true } },
+    { name: "phone", label: "Phone", type: "tel", inputProps: { format: "tel", telPattern: "+91 xxxx xxx", floatingLabel: true } }
+  ],
+  submit: { label: "Save" }
+});
+```
+
+### Example: Date and time fields
+
+```tsx
+const { form } = useDynamicForm({
+  fields: [
+    { name: "date", label: "Date", type: "date", defaultValue: null, datePickerProps: { variant: "filled", floatingLabel: true } },
+    { name: "time", label: "Time", type: "time", defaultValue: null, timePickerProps: { format: "12h", minuteStep: 15 } }
+  ],
+  submit: { label: "Schedule" }
+});
+```
+
+## Validation
+
+You can attach rules via validator keys or a custom function. The hook uses `useFormFieldValidator` under the hood.
+
+```tsx
+const { form, errors } = useDynamicForm({
+  fields: [
+    { name: "email", label: "Email", type: "email", required: true, validators: ["required", "email"] },
+    { name: "date", label: "Date", type: "date", defaultValue: null, validate: (d) => (!d ? "Please select a date" : undefined) }
+  ],
+  submit: { label: "Continue" }
+});
+```
+
+To use your own rules engine instance, provide `options.validatorInstance`. To override the default rule set, pass `validatorRules`.
+
+## Controlled submit and onChange
+
+```tsx
+const { form, submit, values } = useDynamicForm({
+  fields: [ { name: "email", label: "Email", type: "email" } ],
+  submit: { label: "Send", onSubmit: async (vals) => console.log(vals) },
+  onChange: (vals, delta) => console.log("change", delta, vals)
+});
+
+async function save() {
+  const result = await submit();
+  if (!result.ok) console.log(result.errors);
+}
+```
+
+## Initial values and defaults
+
+- `initialValues` pre-populates the form at mount.
+- Per-field `defaultValue` applies when there’s no `initialValues` entry.
+- If neither is provided, fields default to an empty string `""` (for text inputs). Set `defaultValue: null` for pickers.
+
+```tsx
+const { form } = useDynamicForm({
+  fields: [
+    { name: "title", label: "Title", defaultValue: "Hello" },
+    { name: "date", label: "Date", type: "date", defaultValue: new Date() }
+  ]
+});
+```
+
+## Disabling submit
+
+Disable the submit button always, or dynamically from current values.
+
+```tsx
+const { form } = useDynamicForm({
+  fields: [ { name: "email", label: "Email", type: "email" } ],
+  submit: {
+    label: "Invite",
+    disabled: (vals) => !String(vals.email || "").includes("@")
+  }
+});
+```
+
+## Component overrides
+
+Swap the default components for fully custom ones.
+
+```tsx
+function MyInput(props: InputProps) { /* ... */ return <input {...props as any} />; }
+function MyDatePicker(props: DatePickerProps) { /* ... */ return <div>Custom Date</div>; }
+function MyTimePicker(props: TimePickerProps) { /* ... */ return <div>Custom Time</div>; }
+
+const { form } = useDynamicForm(
+  { fields: [ { name: "x", label: "X" }, { name: "d", label: "D", type: "date" }, { name: "t", label: "T", type: "time" } ] },
+  { InputComponent: MyInput, DatePickerComponent: MyDatePicker, TimePickerComponent: MyTimePicker }
+);
+```
+
+## Styling and layout
+
+- Pass `fieldsGroupStyle` / `fieldsGroupClassName` to adjust the vertical stack of fields.
+- Pass `formProps` to the `<form>` (e.g., id, className, style).
+
+```tsx
+const { form } = useDynamicForm(
+  { fields: [ { name: "name", label: "Name" } ] },
+  {
+    fieldsGroupStyle: { gap: 16, maxWidth: 420 },
+    formProps: { style: { padding: 12 } }
+  }
+);
+```
+
+## State stores (Zustand)
+
+Provide a minimal Zustand-style store to sync values automatically.
+
+```ts
+type User = { name: string };
+const store = create<User>(() => ({ name: "" }));
+
+const { form } = useDynamicForm<User>({
+  fields: [ { name: "name", label: "Name" } ]
+}, {
+  zustandStore: { getState: store.getState, setState: store.setState }
+});
+```
+
+## Error handling helpers
+
+- `clearFieldError(name)` — clear one error after user correction
+- `clearAllErrors()` — clear all errors (e.g., when resetting the form)
+
+```tsx
+const { form, clearFieldError, clearAllErrors } = useDynamicForm({
+  fields: [ { name: "email", label: "Email", validators: ["required", "email"] } ]
+});
+```
+
+## Full playground example
+
+This example mixes inputs, date, and time, with validation and a live values preview.
+
+```tsx
+import React from "react";
+import { useDynamicForm } from "../hooks/useDynamicForm";
+
+export function BookingForm() {
+  const { form, values, submit } = useDynamicForm({
+    fields: [
+      { name: "name", label: "Full Name", required: true, inputProps: { floatingLabel: true } },
+      { name: "email", label: "Email", type: "email", validators: ["required", "email"], inputProps: { floatingLabel: true } },
+      { name: "date", label: "Date", type: "date", defaultValue: null, datePickerProps: { firstDayOfWeek: 1, floatingLabel: true } },
+      { name: "time", label: "Time", type: "time", defaultValue: null, timePickerProps: { format: "24h", minuteStep: 15 } }
+    ],
+    submit: {
+      label: "Book",
+      onSubmit: async (vals) => alert("Booked!\n" + JSON.stringify(vals, null, 2))
+    },
+    onChange: (vals, delta) => console.log("change", delta)
+  });
+
+  return (
+    <div>
+      {form}
+      <div style={{ marginTop: 16 }}>
+        <strong>Live values</strong>
+        <pre>{JSON.stringify(values, null, 2)}</pre>
+      </div>
+      <button onClick={() => submit()}>Submit programmatically</button>
+    </div>
+  );
+}
+```
+
+## Tips
+
+- For DatePicker/TimePicker fields, set `defaultValue: null` if you want the field initially blank.
+- When using your own validators, prefer short error messages and let the picker/Input render them via `helperText`.
+- Need a range picker? You can build a small wrapper field that holds `{ start: Date|null, end: Date|null }` and render two `DatePicker`s side by side.
+
+---
+
+For reference, the hook lives at `src/hooks/useDynamicForm.tsx`. The default components used are `Input`, `DatePicker`, `TimePicker`, and `Button` from this library, but all are swappable.

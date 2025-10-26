@@ -1,6 +1,10 @@
 import React from "react";
 import type { InputProps } from "../components/Input";
 import { Input as DefaultInput } from "../components/Input";
+import type { DatePickerProps } from "../components/DatePicker";
+import { DatePicker as DefaultDatePicker } from "../components/DatePicker";
+import type { TimePickerProps } from "../components/TimePicker";
+import { TimePicker as DefaultTimePicker } from "../components/TimePicker";
 import type { ButtonProps } from "../components/Button";
 import { Button as DefaultButton } from "../components/Button";
 import { useFormFieldValidator, type ValidatorKey, type ValidationRule } from "./formFieldValidator";
@@ -16,15 +20,21 @@ export type MinimalZustandStore<T extends Record<string, any>> = {
 export type DynamicFieldConfig<TValues extends Record<string, any> = Record<string, any>> = {
   name: keyof TValues & string;
   label?: string;
-  type?: InputProps["type"];
+  /**
+   * Field type hint. If set to 'date' or 'time', the corresponding picker will be rendered.
+   * Otherwise, the standard Input is used.
+   */
+  type?: InputProps["type"] | "date" | "time";
   placeholder?: string;
   defaultValue?: any;
   /** mark this field as required - will be forwarded to the Input component */
   required?: boolean;
-  inputProps?: Omit<
-    InputProps,
-    "value" | "onChange" | "type" | "label" | "defaultValue" | "id"
-  >;
+  /** Additional props forwarded to the rendered Input component. */
+  inputProps?: Omit<InputProps, "value" | "onChange" | "type" | "label" | "defaultValue" | "id">;
+  /** Additional props forwarded when using DatePicker (type === 'date'). */
+  datePickerProps?: Omit<DatePickerProps, "value" | "onChange" | "label">;
+  /** Additional props forwarded when using TimePicker (type === 'time'). */
+  timePickerProps?: Omit<TimePickerProps, "value" | "onChange" | "label">;
   // Either provide a custom validator function OR a list of validator keys
   validate?: ((value: any, values: TValues) => string | undefined) | ValidatorKey[];
   // Optional alias in case you prefer a dedicated key list
@@ -48,6 +58,8 @@ export interface DynamicFormConfig<TValues extends Record<string, any> = Record<
 
 export interface UseDynamicFormOptions<TValues extends Record<string, any> = Record<string, any>> {
   InputComponent?: React.ComponentType<InputProps>;
+  DatePickerComponent?: React.ComponentType<DatePickerProps>;
+  TimePickerComponent?: React.ComponentType<TimePickerProps>;
   ButtonComponent?: React.ComponentType<ButtonProps>;
   zustandStore?: MinimalZustandStore<TValues>;
   formProps?: React.FormHTMLAttributes<HTMLFormElement>;
@@ -69,6 +81,8 @@ export function useDynamicForm<
   const { fields, initialValues, submit: submitCfg, onChange } = config;
   const {
     InputComponent = DefaultInput,
+    DatePickerComponent = DefaultDatePicker,
+    TimePickerComponent = DefaultTimePicker,
     ButtonComponent = DefaultButton,
     zustandStore,
     formProps,
@@ -162,6 +176,15 @@ export function useDynamicForm<
     [setValue]
   );
 
+  const handleDateChange = React.useCallback(
+    (name: keyof TValues & string) => (d: Date | null) => {
+      setValue(name, d);
+    },
+    [setValue]
+  );
+
+  const handleTimeChange = handleDateChange;
+
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -205,7 +228,39 @@ export function useDynamicForm<
         {fields.map(f => {
           const val = (values as any)[f.name];
           const err = errors[f.name as string];
-          const { inputProps, defaultValue, validate, ...restField } = f as any;
+          const { inputProps, datePickerProps, timePickerProps, defaultValue, validate, validators, ...restField } = f as any;
+
+          if (f.type === "date") {
+            return (
+              <DatePickerComponent
+                key={f.name as string}
+                label={f.label}
+                required={f.required}
+                value={val as Date | null}
+                onChange={handleDateChange(f.name as any)}
+                placeholder={f.placeholder}
+                error={!!err}
+                helperText={err}
+                {...(datePickerProps as any)}
+              />
+            );
+          }
+          if (f.type === "time") {
+            return (
+              <TimePickerComponent
+                key={f.name as string}
+                label={f.label}
+                required={f.required}
+                value={val as Date | null}
+                onChange={handleTimeChange(f.name as any)}
+                placeholder={f.placeholder}
+                error={!!err}
+                helperText={err}
+                {...(timePickerProps as any)}
+              />
+            );
+          }
+
           return (
             <InputComponent
               key={f.name as string}

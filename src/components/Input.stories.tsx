@@ -25,7 +25,10 @@ const meta: Meta<typeof Input> = {
     showPasswordToggle: { control: "boolean" },
     format: { control: "select", options: ["none", "tel", "email", "url"] },
     telPattern: { control: "text" },
-    fullWidth: { control: "boolean" }
+    fullWidth: { control: "boolean" },
+    maxChars: { control: { type: "number" } },
+    showCharCount: { control: { type: "select" }, options: [false, true, "remaining"] },
+    inputFilter: { control: { type: "select" }, options: [undefined, "numeric", "alpha", "alphanumeric"] }
   }
 };
 
@@ -109,6 +112,57 @@ export const IndiaTelMask: Story = {
     type: "tel",
     format: "tel",
     telPattern: "+91 xxxx xxx",
+    floatingLabel: true
+  }
+};
+
+export const Multiline: StoryObj<typeof Input> = {
+  args: {
+    label: "Description",
+    placeholder: "Write a short description...",
+    multiline: true,
+    rows: 4,
+    maxChars: 120,
+    showCharCount: "remaining",
+    variant: "outlined",
+    floatingLabel: true
+  }
+};
+
+export const WithCharCounter: StoryObj<typeof Input> = {
+  args: {
+    label: "Username",
+    placeholder: "Up to 16 characters",
+    maxChars: 16,
+    showCharCount: true,
+    floatingLabel: true
+  }
+};
+
+export const RemainingCounter: StoryObj<typeof Input> = {
+  args: {
+    label: "Tag",
+    placeholder: "Max 12 characters",
+    maxChars: 12,
+    showCharCount: "remaining",
+    floatingLabel: true
+  }
+};
+
+export const NumericOnly: StoryObj<typeof Input> = {
+  args: {
+    label: "Numeric only",
+    placeholder: "Only digits",
+    inputFilter: "numeric",
+    floatingLabel: true
+  }
+};
+
+export const AlphanumericOnly: StoryObj<typeof Input> = {
+  args: {
+    label: "Alphanumeric",
+    placeholder: "Letters and numbers",
+    inputFilter: "alphanumeric",
     floatingLabel: true
   }
 };

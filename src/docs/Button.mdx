@@ -1,0 +1,1239 @@
+import { Meta } from "@storybook/blocks";
+import { Button } from "../components/Button";
+import { ButtonThemeProvider } from "../theme/provider";
+
+<Meta title="Docs/Button" />
+
+# Button — Complete Guide
+
+A flexible, themeable button component inspired by Material-UI design principles. Use it for actions, navigation, form submissions, and more.
+
+**What makes this Button special?**
+- **Three visual styles** — Choose between text, outlined, or contained variants
+- **Six color palettes** — Primary, secondary, success, error, warning, and info colors built-in
+- **Three sizes** — Small, medium, and large to fit any context
+- **Icon support** — Add icons before or after the button text
+- **Fully themeable** — Customize every aspect through the theme provider
+- **Accessible** — Built on native `<button>` with full keyboard and ARIA support
+
+**Why use this Button?**
+- Consistent styling across your entire app
+- Easy to customize without writing CSS
+- Works great with forms and interactive elements
+- Supports all native button features (onClick, type, disabled, etc.)
+
+---
+
+## Quick Start
+
+Here's the simplest way to use a Button:
+
+```tsx
+import { Button } from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <Button variant="contained" color="primary">
+      Click me
+    </Button>
+  );
+}
+```
+
+**What's happening here?**
+1. Import the Button component from the library
+2. Set `variant="contained"` for a solid, filled button
+3. Set `color="primary"` to use the primary theme color
+4. Add text as children — that's what shows on the button
+
+---
+
+## How it Works — Core Concepts
+
+### 1. **Variants control the visual style**
+The `variant` prop determines whether your button is filled, outlined, or text-only:
+- `contained` — Solid background, most prominent
+- `outlined` — Border with transparent background
+- `text` — No border or background, minimal style
+
+### 2. **Colors provide semantic meaning**
+Six built-in colors help convey the button's purpose:
+- `primary` — Main actions (default blue)
+- `secondary` — Secondary actions (default purple)
+- `success` — Positive actions (default green)
+- `error` — Destructive actions (default red)
+- `warning` — Caution actions (default orange)
+- `info` — Informational actions (default light blue)
+
+### 3. **Sizes adapt to context**
+Three sizes for different use cases:
+- `small` — Compact spaces, tight layouts
+- `medium` — Default, most common
+- `large` — Emphasis, call-to-action buttons
+
+### 4. **Theme system for consistency**
+Wrap parts of your app with `ButtonThemeProvider` to customize colors, sizes, fonts, and more. All buttons inside automatically inherit the theme.
+
+### 5. **Native button features**
+Since it's built on a real `<button>` element, you get everything HTML buttons provide: onClick, onFocus, disabled, type, aria-label, and more.
+
+---
+
+## API Reference — What the Button Returns
+
+When you use `<Button>`, it renders a native HTML `<button>` element with enhanced styling and features.
+
+---
+
+## ButtonProps — All Available Properties
+
+Every prop you can pass to the Button component, explained in detail:
+
+```tsx
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: React.ReactNode;
+  variant?: "text" | "outlined" | "contained";
+  color?: "primary" | "secondary" | "success" | "error" | "warning" | "info";
+  size?: "small" | "medium" | "large";
+  disabled?: boolean;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  fullWidth?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  // Plus all native button attributes: type, aria-*, name, value, etc.
+}
+```
+
+### `children` (optional)
+- **Type:** React node (text, elements, components)
+- **What it is:** The content displayed inside the button
+- **Usage:** Usually text, but can be any React element
+- **Examples:**
+  ```tsx
+  // Simple text
+  <Button>Click Here</Button>
+  
+  // With formatting
+  <Button>
+    <strong>Bold</strong> action
+  </Button>
+  
+  // Icon only (provide aria-label for accessibility)
+  <Button aria-label="Add item" startIcon={<PlusIcon />} />
+  ```
+
+### `variant` (optional)
+- **Type:** `"text"` | `"outlined"` | `"contained"`
+- **What it does:** Controls the visual style of the button
+- **Default:** `"text"`
+- **When to use each:**
+  - **contained** — Primary actions, most important button on the page
+  - **outlined** — Secondary actions, alternatives to the primary action
+  - **text** — Tertiary actions, minimal emphasis, inline with content
+- **Examples:**
+  ```tsx
+  // Filled button with solid background (most prominent)
+  <Button variant="contained" color="primary">Save</Button>
+  
+  // Outlined button with border (secondary)
+  <Button variant="outlined" color="primary">Cancel</Button>
+  
+  // Text-only button (minimal)
+  <Button variant="text" color="primary">Learn More</Button>
+  ```
+- **Visual comparison:**
+  ```tsx
+  <div style={{ display: "flex", gap: "12px" }}>
+    <Button variant="text">Text</Button>
+    <Button variant="outlined">Outlined</Button>
+    <Button variant="contained">Contained</Button>
+  </div>
+  ```
+
+### `color` (optional)
+- **Type:** `"primary"` | `"secondary"` | `"success"` | `"error"` | `"warning"` | `"info"`
+- **What it does:** Sets the color scheme from your theme
+- **Default:** `"primary"`
+- **When to use each:**
+  - **primary** — Main brand actions (Sign Up, Submit, Continue)
+  - **secondary** — Supporting actions (View Details, Edit)
+  - **success** — Positive actions (Approve, Confirm, Accept)
+  - **error** — Destructive actions (Delete, Remove, Cancel Subscription)
+  - **warning** — Cautionary actions (Proceed with Caution, Override)
+  - **info** — Informational actions (Learn More, Help, Info)
+- **Examples:**
+  ```tsx
+  // Success button for positive actions
+  <Button variant="contained" color="success">Approve</Button>
+  
+  // Error button for destructive actions
+  <Button variant="contained" color="error">Delete Account</Button>
+  
+  // Warning button for cautious actions
+  <Button variant="outlined" color="warning">Proceed Anyway</Button>
+  
+  // All colors side by side
+  <div style={{ display: "flex", gap: "12px" }}>
+    <Button variant="contained" color="primary">Primary</Button>
+    <Button variant="contained" color="secondary">Secondary</Button>
+    <Button variant="contained" color="success">Success</Button>
+    <Button variant="contained" color="error">Error</Button>
+    <Button variant="contained" color="warning">Warning</Button>
+    <Button variant="contained" color="info">Info</Button>
+  </div>
+  ```
+
+### `size` (optional)
+- **Type:** `"small"` | `"medium"` | `"large"`
+- **What it does:** Controls the button's padding, font size, and height
+- **Default:** `"medium"`
+- **When to use each:**
+  - **small** — Compact UIs, tables, tight spaces, secondary actions
+  - **medium** — Most common, default for general use
+  - **large** — Call-to-action buttons, emphasis, hero sections
+- **Examples:**
+  ```tsx
+  // Small button for compact spaces
+  <Button variant="contained" size="small">Small</Button>
+  
+  // Large button for emphasis
+  <Button variant="contained" size="large">Get Started Free</Button>
+  
+  // Size comparison
+  <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+    <Button variant="contained" size="small">Small</Button>
+    <Button variant="contained" size="medium">Medium</Button>
+    <Button variant="contained" size="large">Large</Button>
+  </div>
+  ```
+- **Default sizes:**
+  - Small: 30px min-height, 0.8125rem font
+  - Medium: 36px min-height, 0.875rem font
+  - Large: 42px min-height, 0.9375rem font
+
+### `disabled` (optional)
+- **Type:** Boolean
+- **What it does:** Disables the button (prevents clicks, reduces opacity)
+- **Default:** `false`
+- **When to use:** 
+  - Form is invalid or incomplete
+  - Action is not currently available
+  - Preventing multiple submissions
+  - Loading state
+- **Examples:**
+  ```tsx
+  // Disabled button (not clickable)
+  <Button variant="contained" disabled>Submit</Button>
+  
+  // Conditional disabling based on form state
+  function FormExample() {
+    const [email, setEmail] = React.useState("");
+    
+    return (
+      <div>
+        <input 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter email"
+        />
+        <Button 
+          variant="contained" 
+          disabled={!email}
+        >
+          Submit
+        </Button>
+      </div>
+    );
+  }
+  
+  // Visual comparison
+  <div style={{ display: "flex", gap: "12px" }}>
+    <Button variant="contained">Enabled</Button>
+    <Button variant="contained" disabled>Disabled</Button>
+  </div>
+  ```
+- **Note:** Disabled buttons have 60% opacity and no hover effects
+
+### `startIcon` (optional)
+- **Type:** React node (typically an SVG icon component)
+- **What it is:** Icon displayed before the button text
+- **When to use:** To add visual context or make the button more recognizable
+- **Examples:**
+  ```tsx
+  // Icon component
+  const PlusIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+    </svg>
+  );
+  
+  // Button with start icon
+  <Button variant="contained" startIcon={<PlusIcon />}>
+    Add Item
+  </Button>
+  
+  // With react-icons library
+  import { FaDownload } from "react-icons/fa";
+  
+  <Button variant="contained" startIcon={<FaDownload />}>
+    Download
+  </Button>
+  
+  // Multiple examples
+  <div style={{ display: "flex", gap: "12px" }}>
+    <Button variant="contained" startIcon={<span>📧</span>}>Email</Button>
+    <Button variant="outlined" startIcon={<span>⭐</span>}>Favorite</Button>
+    <Button variant="text" startIcon={<span>🔍</span>}>Search</Button>
+  </div>
+  ```
+
+### `endIcon` (optional)
+- **Type:** React node (typically an SVG icon component)
+- **What it is:** Icon displayed after the button text
+- **When to use:** To indicate direction, action result, or external links
+- **Examples:**
+  ```tsx
+  // Arrow icon for navigation
+  const ArrowIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" />
+    </svg>
+  );
+  
+  // Button with end icon
+  <Button variant="contained" endIcon={<ArrowIcon />}>
+    Next Step
+  </Button>
+  
+  // External link indicator
+  <Button variant="text" endIcon={<span>↗</span>}>
+    Learn More
+  </Button>
+  
+  // Common patterns
+  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <Button variant="contained" endIcon={<span>→</span>}>Continue</Button>
+    <Button variant="outlined" endIcon={<span>↗</span>}>Open in New Tab</Button>
+    <Button variant="text" endIcon={<span>▼</span>}>Show More</Button>
+  </div>
+  ```
+
+### `startIcon` + `endIcon` together
+- **When to use both:** Rarely, but can work for special cases
+- **Example:**
+  ```tsx
+  <Button 
+    variant="outlined" 
+    startIcon={<span>📁</span>}
+    endIcon={<span>↓</span>}
+  >
+    Download File
+  </Button>
+  ```
+
+### `fullWidth` (optional)
+- **Type:** Boolean
+- **What it does:** Makes the button stretch to fill its container's width
+- **Default:** `false`
+- **When to use:**
+  - Mobile layouts where buttons should span the screen
+  - Form submit buttons at the bottom
+  - Card actions that should be full-width
+- **Examples:**
+  ```tsx
+  // Full-width button
+  <div style={{ width: "400px" }}>
+    <Button variant="contained" fullWidth>
+      Complete Purchase
+    </Button>
+  </div>
+  
+  // Common pattern: stacked full-width buttons
+  <div style={{ width: "300px", display: "flex", flexDirection: "column", gap: "12px" }}>
+    <Button variant="contained" color="primary" fullWidth>
+      Sign In with Email
+    </Button>
+    <Button variant="outlined" color="primary" fullWidth>
+      Sign In with Google
+    </Button>
+    <Button variant="text" color="primary" fullWidth>
+      Create Account
+    </Button>
+  </div>
+  
+  // Comparison
+  <div style={{ width: "300px", display: "flex", flexDirection: "column", gap: "12px" }}>
+    <Button variant="contained">Normal Width</Button>
+    <Button variant="contained" fullWidth>Full Width</Button>
+  </div>
+  ```
+
+### `onClick` (optional)
+- **Type:** Function that receives a mouse event
+- **What it does:** Called when the button is clicked
+- **When to use:** For any interactive action
+- **Examples:**
+  ```tsx
+  // Simple click handler
+  <Button 
+    variant="contained"
+    onClick={() => alert("Button clicked!")}
+  >
+    Click Me
+  </Button>
+  
+  // With event parameter
+  <Button
+    variant="contained"
+    onClick={(e) => {
+      console.log("Clicked at:", e.clientX, e.clientY);
+    }}
+  >
+    Click Me
+  </Button>
+  
+  // Common pattern: updating state
+  function Counter() {
+    const [count, setCount] = React.useState(0);
+    
+    return (
+      <div>
+        <p>Count: {count}</p>
+        <Button 
+          variant="contained"
+          onClick={() => setCount(count + 1)}
+        >
+          Increment
+        </Button>
+      </div>
+    );
+  }
+  
+  // Async actions (API calls)
+  function DeleteButton() {
+    const [loading, setLoading] = React.useState(false);
+    
+    const handleDelete = async () => {
+      setLoading(true);
+      try {
+        await fetch("/api/delete", { method: "DELETE" });
+        alert("Deleted successfully!");
+      } catch (error) {
+        alert("Delete failed");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    return (
+      <Button 
+        variant="contained" 
+        color="error"
+        onClick={handleDelete}
+        disabled={loading}
+      >
+        {loading ? "Deleting..." : "Delete"}
+      </Button>
+    );
+  }
+  ```
+
+### Native Button Attributes
+Since Button extends `React.ButtonHTMLAttributes<HTMLButtonElement>`, you get all native button props:
+
+#### `type` (optional)
+- **Type:** `"button"` | `"submit"` | `"reset"`
+- **What it does:** Defines the button's behavior in forms
+- **Default:** `"button"`
+- **Examples:**
+  ```tsx
+  // Form submit button
+  <form onSubmit={handleSubmit}>
+    <input name="email" />
+    <Button variant="contained" type="submit">
+      Submit
+    </Button>
+  </form>
+  
+  // Reset button
+  <form>
+    <input name="email" />
+    <Button variant="outlined" type="reset">
+      Reset Form
+    </Button>
+  </form>
+  ```
+
+#### `aria-label` (optional)
+- **Type:** String
+- **What it does:** Provides accessible label for screen readers
+- **When to use:** Icon-only buttons without text
+- **Example:**
+  ```tsx
+  <Button 
+    variant="contained"
+    startIcon={<span>🗑️</span>}
+    aria-label="Delete item"
+  />
+  ```
+
+#### `style` (optional)
+- **Type:** React.CSSProperties object
+- **What it does:** Applies custom inline styles
+- **When to use:** One-off styling that doesn't belong in the theme
+- **Examples:**
+  ```tsx
+  // Custom border radius
+  <Button 
+    variant="contained"
+    style={{ borderRadius: "20px" }}
+  >
+    Rounded
+  </Button>
+  
+  // Custom text styling
+  <Button
+    variant="contained"
+    style={{
+      textTransform: "none",
+      fontWeight: "bold",
+      fontSize: "18px"
+    }}
+  >
+    Custom Styled
+  </Button>
+  ```
+
+#### `className` (optional)
+- **Type:** String
+- **What it does:** Adds CSS class names
+- **When to use:** For external CSS styling
+- **Example:**
+  ```tsx
+  <Button variant="contained" className="my-custom-button">
+    Styled with CSS
+  </Button>
+  ```
+
+#### Other native props:
+- `name`, `value` — For form data
+- `onFocus`, `onBlur` — Focus event handlers
+- `onMouseEnter`, `onMouseLeave` — Hover event handlers
+- `onKeyDown`, `onKeyUp` — Keyboard event handlers
+- `tabIndex` — Tab order control
+- `id` — Element ID
+- `data-*` — Custom data attributes
+- `aria-*` — Accessibility attributes
+
+---
+
+## ButtonThemeProvider — Customizing Appearance
+
+The theme provider lets you customize button styling across your entire app or specific sections.
+
+### Basic Usage
+
+```tsx
+import { Button, ButtonThemeProvider } from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <ButtonThemeProvider
+      theme={{
+        colors: {
+          primary: {
+            main: "#4f46e5",
+            hover: "#4338ca",
+            text: "#4f46e5",
+            border: "#4f46e5"
+          }
+        }
+      }}
+    >
+      <Button variant="contained" color="primary">
+        Custom Primary Color
+      </Button>
+    </ButtonThemeProvider>
+  );
+}
+```
+
+### Theme Structure
+
+```tsx
+interface ButtonTheme {
+  colors: {
+    primary: ButtonColorConfig;
+    secondary: ButtonColorConfig;
+    success: ButtonColorConfig;
+    error: ButtonColorConfig;
+    warning: ButtonColorConfig;
+    info: ButtonColorConfig;
+  };
+  sizes: {
+    small: ButtonSizeConfig;
+    medium: ButtonSizeConfig;
+    large: ButtonSizeConfig;
+  };
+  borderRadius: string;
+  fontFamily: string;
+  textTransform: string;
+  letterSpacing: string;
+  fontWeight: number;
+}
+
+interface ButtonColorConfig {
+  main: string;      // Background for contained variant
+  hover: string;     // Background on hover
+  text: string;      // Text color for outlined/text variants
+  border: string;    // Border color for outlined variant
+}
+
+interface ButtonSizeConfig {
+  padding: string;
+  fontSize: string;
+  minHeight: string;
+}
+```
+
+### Theme Properties Explained
+
+#### `colors` (optional)
+- **What it does:** Customizes the color palette for all six colors
+- **When to use:** To match your brand colors or design system
+- **Example:**
+  ```tsx
+  <ButtonThemeProvider
+    theme={{
+      colors: {
+        // Custom primary color (indigo)
+        primary: {
+          main: "#4f46e5",
+          hover: "#4338ca",
+          text: "#4f46e5",
+          border: "#4f46e5"
+        },
+        // Custom success color (emerald)
+        success: {
+          main: "#10b981",
+          hover: "#059669",
+          text: "#10b981",
+          border: "#10b981"
+        }
+        // Other colors use defaults
+      }
+    }}
+  >
+    <Button variant="contained" color="primary">Indigo</Button>
+    <Button variant="contained" color="success">Emerald</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `sizes` (optional)
+- **What it does:** Customizes padding, font size, and height for all three sizes
+- **When to use:** To create more compact or spacious buttons
+- **Example:**
+  ```tsx
+  <ButtonThemeProvider
+    theme={{
+      sizes: {
+        small: {
+          padding: "2px 8px",
+          fontSize: "0.75rem",
+          minHeight: "26px"
+        },
+        medium: {
+          padding: "6px 16px",
+          fontSize: "0.875rem",
+          minHeight: "36px"
+        },
+        large: {
+          padding: "10px 24px",
+          fontSize: "1rem",
+          minHeight: "48px"
+        }
+      }
+    }}
+  >
+    <Button variant="contained" size="small">Compact</Button>
+    <Button variant="contained" size="large">Spacious</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `borderRadius` (optional)
+- **Type:** String (CSS value)
+- **What it does:** Sets rounded corners for all buttons
+- **Default:** `"4px"`
+- **Examples:**
+  ```tsx
+  // Fully rounded (pill-shaped)
+  <ButtonThemeProvider theme={{ borderRadius: "9999px" }}>
+    <Button variant="contained">Pill Button</Button>
+  </ButtonThemeProvider>
+  
+  // Sharp corners
+  <ButtonThemeProvider theme={{ borderRadius: "0" }}>
+    <Button variant="contained">Sharp Button</Button>
+  </ButtonThemeProvider>
+  
+  // Custom radius
+  <ButtonThemeProvider theme={{ borderRadius: "12px" }}>
+    <Button variant="contained">Rounded Button</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `fontFamily` (optional)
+- **Type:** String (CSS font-family)
+- **What it does:** Changes the font for button text
+- **Default:** `"Roboto", "Helvetica", "Arial", sans-serif`
+- **Example:**
+  ```tsx
+  <ButtonThemeProvider 
+    theme={{ fontFamily: "Inter, system-ui, sans-serif" }}
+  >
+    <Button variant="contained">Custom Font</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `textTransform` (optional)
+- **Type:** String (`"uppercase"` | `"lowercase"` | `"capitalize"` | `"none"`)
+- **What it does:** Controls text capitalization
+- **Default:** `"uppercase"`
+- **Examples:**
+  ```tsx
+  // Keep original case
+  <ButtonThemeProvider theme={{ textTransform: "none" }}>
+    <Button variant="contained">Keep Original Case</Button>
+  </ButtonThemeProvider>
+  
+  // Capitalize first letter
+  <ButtonThemeProvider theme={{ textTransform: "capitalize" }}>
+    <Button variant="contained">capitalize each word</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `letterSpacing` (optional)
+- **Type:** String (CSS value)
+- **What it does:** Controls space between letters
+- **Default:** `"0.02857em"`
+- **Example:**
+  ```tsx
+  <ButtonThemeProvider theme={{ letterSpacing: "0.1em" }}>
+    <Button variant="contained">Wide Spacing</Button>
+  </ButtonThemeProvider>
+  ```
+
+#### `fontWeight` (optional)
+- **Type:** Number (100-900)
+- **What it does:** Controls text boldness
+- **Default:** `500`
+- **Example:**
+  ```tsx
+  <ButtonThemeProvider theme={{ fontWeight: 700 }}>
+    <Button variant="contained">Bold Text</Button>
+  </ButtonThemeProvider>
+  ```
+
+### Combining Multiple Theme Properties
+
+```tsx
+<ButtonThemeProvider
+  theme={{
+    colors: {
+      primary: {
+        main: "#4f46e5",
+        hover: "#4338ca",
+        text: "#4f46e5",
+        border: "#4f46e5"
+      }
+    },
+    borderRadius: "9999px",
+    textTransform: "none",
+    fontWeight: 600,
+    fontFamily: "Inter, sans-serif"
+  }}
+>
+  <div style={{ display: "flex", gap: "12px" }}>
+    <Button variant="contained" color="primary">Primary</Button>
+    <Button variant="outlined" color="primary">Outlined</Button>
+    <Button variant="text" color="primary">Text</Button>
+  </div>
+</ButtonThemeProvider>
+```
+
+### Nested Theme Providers
+
+You can nest theme providers to have different themes in different parts of your app:
+
+```tsx
+<ButtonThemeProvider theme={{ borderRadius: "4px" }}>
+  <Button variant="contained">Default Theme</Button>
+  
+  <ButtonThemeProvider theme={{ borderRadius: "20px" }}>
+    <Button variant="contained">Nested Theme</Button>
+  </ButtonThemeProvider>
+  
+  <Button variant="contained">Back to Default</Button>
+</ButtonThemeProvider>
+```
+
+### Default Theme Values
+
+If you don't provide a theme, these defaults are used:
+
+```tsx
+{
+  colors: {
+    primary: {
+      main: "#1976d2",
+      hover: "#1565c0",
+      text: "#1976d2",
+      border: "#1976d2"
+    },
+    secondary: {
+      main: "#9c27b0",
+      hover: "#7b1fa2",
+      text: "#9c27b0",
+      border: "#9c27b0"
+    },
+    success: {
+      main: "#2e7d32",
+      hover: "#1b5e20",
+      text: "#2e7d32",
+      border: "#2e7d32"
+    },
+    error: {
+      main: "#d32f2f",
+      hover: "#c62828",
+      text: "#d32f2f",
+      border: "#d32f2f"
+    },
+    warning: {
+      main: "#ed6c02",
+      hover: "#e65100",
+      text: "#ed6c02",
+      border: "#ed6c02"
+    },
+    info: {
+      main: "#0288d1",
+      hover: "#0277bd",
+      text: "#0288d1",
+      border: "#0288d1"
+    }
+  },
+  sizes: {
+    small: {
+      padding: "4px 10px",
+      fontSize: "0.8125rem",
+      minHeight: "30px"
+    },
+    medium: {
+      padding: "6px 16px",
+      fontSize: "0.875rem",
+      minHeight: "36px"
+    },
+    large: {
+      padding: "8px 22px",
+      fontSize: "0.9375rem",
+      minHeight: "42px"
+    }
+  },
+  borderRadius: "4px",
+  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  textTransform: "uppercase",
+  letterSpacing: "0.02857em",
+  fontWeight: 500
+}
+```
+
+---
+
+## Common Examples
+
+### Form Submit Button
+
+```tsx
+function LoginForm() {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await fetch("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+      alert("Login successful!");
+    } catch (error) {
+      alert("Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        type="email" 
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input 
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <Button 
+        variant="contained" 
+        type="submit"
+        disabled={!email || !password || loading}
+        fullWidth
+      >
+        {loading ? "Signing In..." : "Sign In"}
+      </Button>
+    </form>
+  );
+}
+```
+
+### Action Buttons with Confirmation
+
+```tsx
+function DeleteButton() {
+  const [showConfirm, setShowConfirm] = React.useState(false);
+  
+  const handleDelete = async () => {
+    await fetch("/api/delete", { method: "DELETE" });
+    alert("Deleted!");
+    setShowConfirm(false);
+  };
+  
+  return (
+    <div>
+      {!showConfirm ? (
+        <Button 
+          variant="contained" 
+          color="error"
+          onClick={() => setShowConfirm(true)}
+        >
+          Delete
+        </Button>
+      ) : (
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button 
+            variant="contained" 
+            color="error"
+            onClick={handleDelete}
+          >
+            Confirm Delete
+          </Button>
+          <Button 
+            variant="outlined"
+            onClick={() => setShowConfirm(false)}
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Button Group
+
+```tsx
+function ButtonGroup() {
+  const [selected, setSelected] = React.useState("day");
+  
+  return (
+    <div style={{ display: "flex", gap: "0" }}>
+      <Button
+        variant={selected === "day" ? "contained" : "outlined"}
+        onClick={() => setSelected("day")}
+        style={{ borderRadius: "4px 0 0 4px" }}
+      >
+        Day
+      </Button>
+      <Button
+        variant={selected === "week" ? "contained" : "outlined"}
+        onClick={() => setSelected("week")}
+        style={{ borderRadius: "0" }}
+      >
+        Week
+      </Button>
+      <Button
+        variant={selected === "month" ? "contained" : "outlined"}
+        onClick={() => setSelected("month")}
+        style={{ borderRadius: "0 4px 4px 0" }}
+      >
+        Month
+      </Button>
+    </div>
+  );
+}
+```
+
+### Loading State
+
+```tsx
+function LoadingButton() {
+  const [loading, setLoading] = React.useState(false);
+  
+  const handleClick = async () => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoading(false);
+  };
+  
+  return (
+    <Button
+      variant="contained"
+      onClick={handleClick}
+      disabled={loading}
+      startIcon={loading ? <span>⏳</span> : <span>📤</span>}
+    >
+      {loading ? "Uploading..." : "Upload File"}
+    </Button>
+  );
+}
+```
+
+### Navigation Buttons
+
+```tsx
+function Navigation() {
+  return (
+    <div style={{ display: "flex", gap: "12px" }}>
+      <Button 
+        variant="outlined"
+        startIcon={<span>←</span>}
+        onClick={() => window.history.back()}
+      >
+        Back
+      </Button>
+      
+      <Button 
+        variant="contained"
+        endIcon={<span>→</span>}
+        onClick={() => window.location.href = "/next"}
+      >
+        Continue
+      </Button>
+    </div>
+  );
+}
+```
+
+---
+
+## Accessibility
+
+The Button component is built with accessibility in mind:
+
+### Keyboard Support
+- **Enter/Space** — Activates the button when focused
+- **Tab** — Moves focus to/from the button
+- Custom `tabIndex` supported for focus order control
+
+### Screen Readers
+- Uses native `<button>` element for proper semantics
+- Provide `aria-label` for icon-only buttons
+- Disabled state is announced automatically
+
+### Best Practices
+
+```tsx
+// ✅ Good: Icon-only button with aria-label
+<Button 
+  variant="contained"
+  aria-label="Add to favorites"
+  startIcon={<span>⭐</span>}
+/>
+
+// ❌ Bad: Icon-only button without aria-label
+<Button variant="contained" startIcon={<span>⭐</span>} />
+
+// ✅ Good: Descriptive text
+<Button variant="contained" color="error">Delete Account</Button>
+
+// ❌ Bad: Ambiguous text
+<Button variant="contained">Click Here</Button>
+
+// ✅ Good: Loading state with changed text
+<Button disabled={loading}>
+  {loading ? "Processing..." : "Submit"}
+</Button>
+
+// ❌ Bad: No indication of state
+<Button disabled={loading}>Submit</Button>
+```
+
+---
+
+## TypeScript
+
+The Button component is fully typed. Import types for custom components:
+
+```tsx
+import type { ButtonProps } from "@karya_app1/rain-js";
+
+// Create a custom button component
+const MyButton: React.FC<ButtonProps> = (props) => {
+  return <Button {...props} />;
+};
+
+// Extend ButtonProps
+interface MyCustomButtonProps extends ButtonProps {
+  loading?: boolean;
+}
+
+const CustomButton: React.FC<MyCustomButtonProps> = ({ 
+  loading, 
+  children, 
+  ...props 
+}) => {
+  return (
+    <Button {...props} disabled={loading || props.disabled}>
+      {loading ? "Loading..." : children}
+    </Button>
+  );
+};
+```
+
+---
+
+## Tips and Tricks
+
+### Preventing Multiple Clicks
+
+```tsx
+function SubmitButton() {
+  const [submitting, setSubmitting] = React.useState(false);
+  
+  const handleSubmit = async () => {
+    if (submitting) return; // Prevent double-click
+    
+    setSubmitting(true);
+    try {
+      await fetch("/api/submit", { method: "POST" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  return (
+    <Button 
+      variant="contained"
+      onClick={handleSubmit}
+      disabled={submitting}
+    >
+      {submitting ? "Submitting..." : "Submit"}
+    </Button>
+  );
+}
+```
+
+### Custom Hover Effects
+
+```tsx
+<Button
+  variant="outlined"
+  style={{
+    transition: "all 0.3s ease",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "scale(1.05)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+  }}
+>
+  Hover Me
+</Button>
+```
+
+### Responsive Sizing
+
+```tsx
+function ResponsiveButton() {
+  const [size, setSize] = React.useState<"small" | "medium" | "large">("medium");
+  
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) setSize("small");
+      else if (window.innerWidth < 1024) setSize("medium");
+      else setSize("large");
+    };
+    
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
+  return (
+    <Button variant="contained" size={size}>
+      Responsive Button
+    </Button>
+  );
+}
+```
+
+---
+
+## Troubleshooting
+
+### Button text not showing
+- Make sure you're passing `children` prop or text between opening/closing tags
+- Check that `children` is not `null` or `undefined`
+
+### Click handler not firing
+- Ensure the button is not `disabled`
+- Check that `onClick` is passed correctly
+- Verify no parent element is preventing event propagation
+
+### Styling not applying
+- Check if there's a theme provider overriding your styles
+- Inline `style` prop takes precedence over theme
+- Use browser DevTools to inspect computed styles
+
+### Icons not aligning
+- Ensure icon components have consistent size (16x16px is standard)
+- Icons automatically get `currentColor` for fill/stroke
+- Check that icon wrapper elements don't add extra spacing
+
+---
+
+## Summary
+
+The Button component is a versatile, themeable component that covers all common use cases:
+
+**Key Features:**
+- Three variants (text, outlined, contained)
+- Six semantic colors (primary, secondary, success, error, warning, info)
+- Three sizes (small, medium, large)
+- Icon support (start and end)
+- Full-width option
+- Disabled state
+- Theme provider for customization
+- Native button features (onClick, type, aria-*)
+- TypeScript support
+- Accessible by default
+
+**When to use each variant:**
+- **Contained** — Primary actions, most important button
+- **Outlined** — Secondary actions, alternatives
+- **Text** — Tertiary actions, minimal emphasis
+
+**Best practices:**
+- Use semantic colors to convey meaning
+- Provide aria-label for icon-only buttons
+- Show loading/disabled states appropriately
+- Keep button text concise and action-oriented
+- Use consistent theming across your app

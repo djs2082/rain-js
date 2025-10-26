@@ -17,6 +17,18 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   showPasswordToggle?: boolean; // for type="password"
   format?: "none" | "tel" | "email" | "url"; // simple formatting/masking helpers
   telPattern?: string; // e.g., "+91 xxxx xxx" (x = digit)
+  /** Maximum characters allowed; if provided alongside maxLength, the smaller applies */
+  maxChars?: number;
+  /** Display a character counter below the field. If 'remaining', show remaining count */
+  showCharCount?: boolean | "remaining";
+  /** Custom counter text. Receives current length and max (if any) */
+  countFormatter?: (count: number, max?: number) => string;
+  /** Filter characters for text-like input: 'numeric' | 'alpha' | 'alphanumeric' | RegExp */
+  inputFilter?: "numeric" | "alpha" | "alphanumeric" | RegExp;
+  /** Render a multiline text box (textarea) instead of single-line input */
+  multiline?: boolean;
+  /** Rows for textarea (only when multiline) */
+  rows?: number;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -34,6 +46,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     showPasswordToggle,
     format = "none",
     telPattern,
+    maxChars,
+    showCharCount,
+    countFormatter,
+    inputFilter,
+    multiline = false,
+    rows,
       required = false,
     style,
     className,
@@ -46,7 +64,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const inputId = id || useId();
   const c = theme.colors[color];
   const s = theme.sizes[size];
-  const isPassword = (rest.type || "text") === "password";
+  const isPassword = !multiline && (rest.type || "text") === "password";
   const allowToggle = isPassword && (showPasswordToggle ?? true);
   const [showPwd, setShowPwd] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -57,13 +75,36 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const currentValue = String((isControlled ? rest.value : uncontrolledVal) ?? "");
   const hasContent = currentValue.length > 0;
 
+  // compute the effective max length (native attr + prop)
+  const nativeMax = typeof rest.maxLength === "number" && rest.maxLength > 0 ? rest.maxLength : undefined;
+  const effectiveMax = typeof maxChars === "number" && maxChars > 0
+    ? (nativeMax ? Math.min(nativeMax, maxChars) : maxChars)
+    : nativeMax;
+
   const inputType = allowToggle ? (showPwd ? "text" : "password") : rest.type;
 
-  const inputElRef = useRef<HTMLInputElement | null>(null);
-  const setRefs = (node: HTMLInputElement | null) => {
+  const applyFilter = (val: string) => {
+    if (!inputFilter) return val;
+    if (inputFilter instanceof RegExp) {
+      return (val.match(inputFilter) || []).join("");
+    }
+    switch (inputFilter) {
+      case "numeric":
+        return val.replace(/[^0-9]/g, "");
+      case "alpha":
+        return val.replace(/[^a-zA-Z]/g, "");
+      case "alphanumeric":
+        return val.replace(/[^a-zA-Z0-9]/g, "");
+      default:
+        return val;
+    }
+  };
+
+  const inputElRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+  const setRefs = (node: HTMLInputElement | HTMLTextAreaElement | null) => {
     inputElRef.current = node;
-    if (typeof ref === "function") ref(node);
-    else if (ref && typeof ref === "object") (ref as React.MutableRefObject<HTMLInputElement | null>).current = node;
+    if (typeof ref === "function") (ref as any)(node);
+    else if (ref && typeof ref === "object") (ref as React.MutableRefObject<any>).current = node;
   };
   const lastKeyRef = useRef<null | { key: "Backspace" | "Delete"; }>(null);
 
@@ -179,8 +220,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (format === "tel") {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!multiline && format === "tel") {
       const input = e.target as HTMLInputElement;
       const prevDigits = (currentValue.match(/\d/g) || []).join("");
       const selStart = input.selectionStart ?? input.value.length;
@@ -200,8 +241,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       if (formatted !== input.value) {
         input.value = formatted;
       }
-      if (!isControlled) setUncontrolledVal(formatted);
-      rest.onChange?.(e);
+  if (!isControlled) setUncontrolledVal(formatted);
+  (rest.onChange as any)?.(e);
       // set caret after React updates DOM
       setTimeout(() => {
         const el = inputElRef.current;
@@ -214,26 +255,43 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       return;
     }
 
-    if (format !== "none") {
-      const raw = e.target.value;
+    let raw = e.target.value;
+    // apply generic formatting for email/url only for single-line inputs
+    if (!multiline && format !== "none") {
       const next = formatValue(raw);
-      if (next !== raw) {
-        e.target.value = next;
-      }
+      if (next !== raw) raw = next;
     }
-    if (!isControlled) setUncontrolledVal(e.target.value);
-    rest.onChange?.(e);
+    // apply inputFilter for text-like inputs
+    if (multiline) {
+      const filtered = applyFilter(raw);
+      if (filtered !== raw) raw = filtered;
+    } else if (!["email", "url", "tel", "password", "number"].includes(String(rest.type || "text"))) {
+      const filtered = applyFilter(raw);
+      if (filtered !== raw) raw = filtered;
+    } else if (!rest.type || rest.type === "text" || rest.type === "search") {
+      const filtered = applyFilter(raw);
+      if (filtered !== raw) raw = filtered;
+    }
+    // enforce max length
+    if (typeof effectiveMax === "number") {
+      if (raw.length > effectiveMax) raw = raw.slice(0, effectiveMax);
+    }
+    if (raw !== e.target.value) {
+      e.target.value = raw;
+    }
+    if (!isControlled) setUncontrolledVal(raw);
+    (rest.onChange as any)?.(e);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (format === "tel") {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!multiline && format === "tel") {
       if (e.key === "Backspace" || e.key === "Delete") {
         lastKeyRef.current = { key: e.key };
       } else {
         lastKeyRef.current = null;
       }
     }
-    rest.onKeyDown?.(e);
+    (rest.onKeyDown as any)?.(e);
   };
 
   const wrapperStyle: React.CSSProperties = {
@@ -351,25 +409,49 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             {startAdornment}
           </span>
         )}
-        <input
-          id={inputId}
-          ref={setRefs}
-          style={{
-            ...finalInputStyle,
-            paddingLeft: startAdornment ? 36 : 12,
-            paddingRight: (allowToggle || endAdornment) ? 36 : undefined
-          }}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          {...rest}
-          required={required}
-          type={inputType}
-          value={isControlled ? rest.value : undefined}
-          defaultValue={!isControlled ? uncontrolledVal : undefined}
-        />
-        {(allowToggle || endAdornment) && (
+        {multiline ? (
+          <textarea
+            id={inputId}
+            ref={setRefs as any}
+            rows={rows}
+            style={{
+              ...finalInputStyle,
+              height: undefined,
+              paddingLeft: startAdornment ? 36 : 12,
+              paddingRight: endAdornment ? 36 : undefined,
+              resize: "vertical"
+            }}
+            onFocus={handleFocus as any}
+            onBlur={handleBlur as any}
+            onChange={handleChange as any}
+            onKeyDown={handleKeyDown as any}
+            required={required}
+            maxLength={effectiveMax}
+            value={isControlled ? (rest.value as any) : undefined}
+            defaultValue={!isControlled ? uncontrolledVal : undefined}
+          />
+        ) : (
+          <input
+            id={inputId}
+            ref={setRefs}
+            style={{
+              ...finalInputStyle,
+              paddingLeft: startAdornment ? 36 : 12,
+              paddingRight: (allowToggle || endAdornment) ? 36 : undefined
+            }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            {...rest}
+            required={required}
+            type={inputType}
+            maxLength={effectiveMax}
+            value={isControlled ? rest.value : undefined}
+            defaultValue={!isControlled ? uncontrolledVal : undefined}
+          />
+        )}
+        {!multiline && (allowToggle || endAdornment) && (
           <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", display: "inline-flex", color: c.text }}>
             {allowToggle ? (
               <button
@@ -391,7 +473,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             )}
           </span>
         )}
-        {helperText && (
+        {!multiline && helperText && (
           <span
             style={{
               position: "absolute",
@@ -408,7 +490,47 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             {helperText}
           </span>
         )}
+        {!multiline && showCharCount && (
+          <span
+            style={{
+              position: "absolute",
+              right: 12,
+              top: `calc(${s.height} + 2px)`,
+              zIndex: 3,
+              background: "transparent",
+              fontSize: s.labelFontSize,
+              color: theme.placeholderColor,
+              textAlign: "right"
+            }}
+          >
+            {typeof countFormatter === "function"
+              ? countFormatter(currentValue.length, effectiveMax)
+              : showCharCount === "remaining" && typeof effectiveMax === "number"
+                ? `${Math.max(0, effectiveMax - currentValue.length)}`
+                : typeof effectiveMax === "number"
+                  ? `${currentValue.length}/${effectiveMax}`
+                  : `${currentValue.length}`}
+          </span>
+        )}
       </div>
+      {multiline && (helperText || showCharCount) && (
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+          <span style={{ fontSize: s.labelFontSize, color: error ? (theme.colors.error.helper || theme.colors.error.main) : theme.placeholderColor }}>
+            {helperText}
+          </span>
+          {showCharCount && (
+            <span style={{ fontSize: s.labelFontSize, color: theme.placeholderColor }}>
+              {typeof countFormatter === "function"
+                ? countFormatter(currentValue.length, effectiveMax)
+                : showCharCount === "remaining" && typeof effectiveMax === "number"
+                  ? `${Math.max(0, effectiveMax - currentValue.length)}`
+                  : typeof effectiveMax === "number"
+                    ? `${currentValue.length}/${effectiveMax}`
+                    : `${currentValue.length}`}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 });

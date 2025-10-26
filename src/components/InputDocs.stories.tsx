@@ -26,6 +26,9 @@ import { Input } from "./Input";
  * - `showPasswordToggle`: Show/hide toggle for password fields
  * - `format`: "none" | "tel" | "email" | "url" formatting helpers
  * - `telPattern`: Custom phone number mask pattern (e.g., "+91 xxxx xxx")
+ * - `maxChars`: Limit the number of characters (applies in addition to native maxLength)
+ * - `showCharCount`: Show a character counter (true for count/max, "remaining" for remaining)
+ * - `inputFilter`: Quickly restrict input to "numeric" | "alpha" | "alphanumeric" or provide a RegExp
  * - Plus all standard input HTML attributes (onChange, type, required, etc.)
  */
 
@@ -311,6 +314,48 @@ export const FormattingDemo: Story = {
           />
         </div>
       </div>
+    </div>
+  )
+};
+
+/**
+ * ## Character Limits & Counters
+ * 
+ * Use `maxChars` to cap input length and `showCharCount` to display progress or remaining characters.
+ */
+export const CharLimitDemo: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 320 }}>
+      <Input label="Username" placeholder="Up to 16" maxChars={16} showCharCount floatingLabel />
+      <Input label="Tag" placeholder="#hashtag" maxChars={12} showCharCount="remaining" floatingLabel />
+    </div>
+  )
+};
+
+/**
+ * ## Input Filtering
+ * 
+ * Quickly restrict characters for text-like inputs using `inputFilter`.
+ */
+export const FilteringDemo: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 320 }}>
+      <Input label="Numeric only" placeholder="12345" inputFilter="numeric" floatingLabel />
+      <Input label="Alphanumeric" placeholder="abc123" inputFilter="alphanumeric" floatingLabel />
+    </div>
+  )
+};
+
+/**
+ * ## Multiline Text Box
+ * 
+ * Set `multiline` to render a textarea. You can pass `rows`, `maxChars`, and `showCharCount`.
+ */
+export const MultilineDemo: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 420 }}>
+      <Input label="Notes" placeholder="Add your notes..." multiline rows={4} floatingLabel />
+      <Input label="Comment" placeholder="Up to 120 characters" multiline rows={3} maxChars={120} showCharCount="remaining" floatingLabel />
     </div>
   )
 };

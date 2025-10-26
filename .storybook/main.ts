@@ -6,9 +6,8 @@ const config: StorybookConfig = {
     options: {}
   },
   stories: [
-    "../src/**/*.stories.@(ts|tsx)"
-    // MDX files excluded to prevent parsing issues
-    // "../src/**/*.mdx" 
+    "../src/**/*.stories.@(ts|tsx)",
+    "../src/docs/**/*.mdx"
   ],
   addons: [
     "@storybook/addon-essentials",

@@ -1,0 +1,1259 @@
+import { Meta } from "@storybook/blocks";
+import Card from "../components/Card";
+import { CardThemeProvider } from "../theme/cardProvider";
+
+<Meta title="Docs/Card" />
+
+# Card — Complete Guide
+
+A composable, themed container component for organizing content into distinct sections with header, body, and footer. Perfect for dashboards, profiles, forms, and any content that needs visual grouping.
+
+**What makes this Card special?**
+- **Three sections** — Header, body, and footer for organized content layout
+- **Optional dividers** — Visual separation between sections with customizable styling
+- **Accent rail** — Expandable left-side colored strip with optional content
+- **Fully responsive** — Adapts padding on mobile, supports custom breakpoints
+- **Resizable** — Optional CSS resize handles for user-adjustable dimensions
+- **Highly themeable** — Customize colors, spacing, borders, shadows, and more
+
+**Why use this Card?**
+- Consistent container styling across your app
+- Clean separation of header, content, and action areas
+- Easy customization without writing CSS
+- Built-in responsive behavior
+- Perfect for dashboards, profile cards, settings panels
+
+---
+
+## Quick Start
+
+Here's the simplest way to use a Card:
+
+```tsx
+import Card from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <Card 
+      header={<div>Card Title</div>}
+      footer={<button>Save</button>}
+    >
+      <p>This is the card body content.</p>
+    </Card>
+  );
+}
+```
+
+**What's happening here?**
+1. Import the Card component
+2. Pass `header` prop with title/heading content
+3. Pass `footer` prop with actions (buttons, links, etc.)
+4. Put your main content as `children` — this becomes the card body
+5. Card automatically handles layout, spacing, and styling
+
+---
+
+## How it Works — Core Concepts
+
+### 1. **Three-section layout**
+Cards are divided into three optional sections:
+- **Header** — Title, labels, or top actions
+- **Body** — Main content (passed as `children`)
+- **Footer** — Actions, timestamps, or bottom information
+
+Each section can be styled independently and has its own padding/background options.
+
+### 2. **Dividers for separation**
+You can show dividers between sections to create clear visual boundaries. Dividers can be:
+- Enabled/disabled globally with `showDividers`
+- Controlled individually per section with `showHeaderDivider` and `showBodyDivider`
+- Customized with color, thickness, and style (solid/dashed/dotted)
+
+### 3. **Accent rail for visual emphasis**
+An optional colored rail on the left edge that:
+- Starts narrow and expands on hover/focus
+- Can display content when expanded (labels, icons)
+- Comes in six color variants (primary, secondary, success, warning, danger, info)
+- Helps categorize or highlight cards
+
+### 4. **Responsive by default**
+Cards automatically adjust padding for mobile screens. You can customize:
+- The breakpoint for mobile behavior
+- Mobile-specific padding
+- Desktop padding
+
+### 5. **Theme system for consistency**
+Use `CardThemeProvider` to customize appearance across all cards or specific sections of your app.
+
+---
+
+## API Reference — CardProps
+
+All the props you can pass to the Card component:
+
+```tsx
+interface CardProps {
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  children?: React.ReactNode; // body content
+  
+  // Dividers
+  showDividers?: boolean;
+  showHeaderDivider?: boolean;
+  showBodyDivider?: boolean;
+  
+  // Section sizing
+  headerHeight?: string | number;
+  footerHeight?: string | number;
+  
+  // Container sizing
+  width?: string | number;
+  maxWidth?: string | number;
+  height?: string | number;
+  
+  // Styling
+  padding?: string;
+  borderRadius?: string;
+  border?: string;
+  shadow?: string;
+  
+  // Spacing
+  gap?: string | number; // global gap (legacy)
+  headerBodyGap?: string | number;
+  bodyFooterGap?: string | number;
+  
+  // Other
+  className?: string;
+  style?: React.CSSProperties;
+  resizable?: boolean;
+  
+  // Accent rail
+  accent?: boolean;
+  accentVariant?: "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+  accentContent?: React.ReactNode;
+}
+```
+
+### Content Props
+
+#### `header` (optional)
+- **Type:** React node (text, elements, components)
+- **What it is:** Content displayed at the top of the card
+- **When to use:** For titles, labels, or top-level actions
+- **Examples:**
+  ```tsx
+  // Simple text header
+  <Card header={<div>Profile Settings</div>}>
+    {/* content */}
+  </Card>
+  
+  // Header with title and action
+  <Card 
+    header={
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h3>Recent Activity</h3>
+        <button>View All</button>
+      </div>
+    }
+  >
+    {/* content */}
+  </Card>
+  
+  // Header with icon
+  <Card 
+    header={
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span>🔔</span>
+        <span>Notifications</span>
+      </div>
+    }
+  >
+    {/* content */}
+  </Card>
+  ```
+
+#### `children` (optional but recommended)
+- **Type:** React node
+- **What it is:** The main body content of the card
+- **Usage:** This is where your primary content goes
+- **Examples:**
+  ```tsx
+  // Text content
+  <Card header={<div>About</div>}>
+    <p>This is the main content area.</p>
+  </Card>
+  
+  // Form fields
+  <Card header={<div>Sign In</div>}>
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password" />
+  </Card>
+  
+  // Complex content
+  <Card>
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div>Name: John Doe</div>
+      <div>Email: john@example.com</div>
+      <div>Status: Active</div>
+    </div>
+  </Card>
+  ```
+
+#### `footer` (optional)
+- **Type:** React node
+- **What it is:** Content displayed at the bottom of the card
+- **When to use:** For actions, timestamps, metadata, or secondary information
+- **Examples:**
+  ```tsx
+  // Action buttons
+  <Card 
+    header={<div>Edit Profile</div>}
+    footer={
+      <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+        <button>Cancel</button>
+        <button>Save</button>
+      </div>
+    }
+  >
+    {/* form fields */}
+  </Card>
+  
+  // Timestamp
+  <Card 
+    header={<div>Article Title</div>}
+    footer={<div style={{ fontSize: "12px", color: "#666" }}>Updated 2 hours ago</div>}
+  >
+    <p>Article content...</p>
+  </Card>
+  
+  // Mixed content
+  <Card
+    footer={
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <span>Total: $99.99</span>
+        <button>Checkout</button>
+      </div>
+    }
+  >
+    {/* shopping cart items */}
+  </Card>
+  ```
+
+### Divider Props
+
+#### `showDividers` (optional)
+- **Type:** Boolean
+- **What it does:** Shows or hides dividers between all sections
+- **Default:** `true`
+- **When to use:** Quick way to toggle dividers globally
+- **Examples:**
+  ```tsx
+  // With dividers (default)
+  <Card 
+    header={<div>Title</div>}
+    footer={<div>Footer</div>}
+    showDividers={true}
+  >
+    Content
+  </Card>
+  
+  // Without dividers
+  <Card 
+    header={<div>Title</div>}
+    footer={<div>Footer</div>}
+    showDividers={false}
+  >
+    Content
+  </Card>
+  ```
+
+#### `showHeaderDivider` (optional)
+- **Type:** Boolean
+- **What it does:** Controls the divider between header and body
+- **Default:** Falls back to `showDividers` value
+- **When to use:** When you want fine-grained control over which dividers show
+- **Example:**
+  ```tsx
+  // Show only header divider
+  <Card
+    header={<div>Title</div>}
+    footer={<div>Footer</div>}
+    showDividers={false}
+    showHeaderDivider={true}
+  >
+    Content
+  </Card>
+  ```
+
+#### `showBodyDivider` (optional)
+- **Type:** Boolean
+- **What it does:** Controls the divider between body and footer
+- **Default:** Falls back to `showDividers` value
+- **Example:**
+  ```tsx
+  // Show only body-footer divider
+  <Card
+    header={<div>Title</div>}
+    footer={<div>Footer</div>}
+    showDividers={false}
+    showBodyDivider={true}
+  >
+    Content
+  </Card>
+  ```
+
+### Section Sizing Props
+
+#### `headerHeight` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets a fixed minimum height for the header
+- **When to use:** To align headers across multiple cards
+- **Examples:**
+  ```tsx
+  // Fixed pixel height
+  <Card headerHeight={64} header={<div>Fixed Height Header</div>}>
+    Content
+  </Card>
+  
+  // CSS value
+  <Card headerHeight="4rem" header={<div>Header</div>}>
+    Content
+  </Card>
+  ```
+
+#### `footerHeight` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets a fixed minimum height for the footer
+- **When to use:** To align footers across multiple cards
+- **Example:**
+  ```tsx
+  <Card 
+    footerHeight={56}
+    footer={<button>Action</button>}
+  >
+    Content
+  </Card>
+  ```
+
+### Container Sizing Props
+
+#### `width` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets the card's width
+- **Default:** Fits content (auto)
+- **Examples:**
+  ```tsx
+  // Fixed pixel width
+  <Card width={400}>Content</Card>
+  
+  // Percentage width
+  <Card width="100%">Full width</Card>
+  
+  // CSS units
+  <Card width="50vw">Half viewport width</Card>
+  ```
+
+#### `maxWidth` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets the maximum width (card can be smaller)
+- **When to use:** For responsive cards that should stop growing at a certain size
+- **Example:**
+  ```tsx
+  <Card width="100%" maxWidth={600}>
+    Responsive card with max width
+  </Card>
+  ```
+
+#### `height` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets the card's height
+- **When to use:** For fixed-height cards or when using `resizable`
+- **Examples:**
+  ```tsx
+  // Fixed height
+  <Card height={300}>Fixed height card</Card>
+  
+  // With resizable (allows vertical resize)
+  <Card height={200} resizable>
+    User can resize this card vertically
+  </Card>
+  ```
+
+### Styling Props
+
+#### `padding` (optional)
+- **Type:** String (CSS value)
+- **What it does:** Overrides the default padding for all sections
+- **Default:** From theme (usually "16px")
+- **Examples:**
+  ```tsx
+  // Compact padding
+  <Card padding="8px">Compact card</Card>
+  
+  // Spacious padding
+  <Card padding="24px">Spacious card</Card>
+  
+  // Asymmetric padding
+  <Card padding="12px 20px">Different horizontal/vertical</Card>
+  ```
+
+#### `borderRadius` (optional)
+- **Type:** String (CSS value)
+- **What it does:** Sets rounded corners
+- **Default:** From theme (usually "8px")
+- **Examples:**
+  ```tsx
+  // Sharp corners
+  <Card borderRadius="0">No rounding</Card>
+  
+  // Very rounded
+  <Card borderRadius="16px">Rounded card</Card>
+  
+  // Pill-shaped (if width/height are equal)
+  <Card borderRadius="9999px">Circular</Card>
+  ```
+
+#### `border` (optional)
+- **Type:** String (CSS border value)
+- **What it does:** Customizes the card's border
+- **Default:** From theme (usually "1px solid #e5e7eb")
+- **Examples:**
+  ```tsx
+  // No border
+  <Card border="none">Borderless</Card>
+  
+  // Thick border
+  <Card border="2px solid #3b82f6">Blue thick border</Card>
+  
+  // Dashed border
+  <Card border="1px dashed #9ca3af">Dashed border</Card>
+  ```
+
+#### `shadow` (optional)
+- **Type:** String (CSS box-shadow value)
+- **What it does:** Adds or customizes shadow
+- **Default:** From theme (usually subtle shadow)
+- **Examples:**
+  ```tsx
+  // No shadow
+  <Card shadow="none">Flat card</Card>
+  
+  // Strong shadow
+  <Card shadow="0 10px 25px rgba(0,0,0,0.2)">Elevated card</Card>
+  
+  // Colored shadow
+  <Card shadow="0 4px 12px rgba(59,130,246,0.3)">Blue shadow</Card>
+  ```
+
+### Spacing Props
+
+#### `gap` (optional, legacy)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets spacing between all sections (when dividers are off)
+- **Note:** Use `headerBodyGap` and `bodyFooterGap` for finer control
+- **Example:**
+  ```tsx
+  <Card gap={24} showDividers={false}>
+    Larger spacing between sections
+  </Card>
+  ```
+
+#### `headerBodyGap` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets spacing between header and body (when no divider)
+- **When to use:** To control spacing without showing a divider line
+- **Example:**
+  ```tsx
+  <Card 
+    header={<div>Title</div>}
+    headerBodyGap={20}
+    showHeaderDivider={false}
+  >
+    Content with custom spacing from header
+  </Card>
+  ```
+
+#### `bodyFooterGap` (optional)
+- **Type:** String (CSS value) or number (pixels)
+- **What it does:** Sets spacing between body and footer (when no divider)
+- **Example:**
+  ```tsx
+  <Card 
+    footer={<button>Action</button>}
+    bodyFooterGap={16}
+    showBodyDivider={false}
+  >
+    Content with custom spacing from footer
+  </Card>
+  ```
+
+### Other Props
+
+#### `className` (optional)
+- **Type:** String
+- **What it does:** Adds CSS class names to the card
+- **When to use:** For external CSS styling
+- **Example:**
+  ```tsx
+  <Card className="my-custom-card">Content</Card>
+  ```
+
+#### `style` (optional)
+- **Type:** React.CSSProperties object
+- **What it does:** Applies custom inline styles
+- **When to use:** For one-off styling that doesn't belong in the theme
+- **Example:**
+  ```tsx
+  <Card style={{ backgroundColor: "#f3f4f6", marginBottom: "16px" }}>
+    Custom styled card
+  </Card>
+  ```
+
+#### `resizable` (optional)
+- **Type:** Boolean
+- **What it does:** Allows users to resize the card via CSS resize handles
+- **Default:** `false`
+- **When to use:** For dashboards or layouts where users want control
+- **Example:**
+  ```tsx
+  // Vertical resize (if height is set)
+  <Card height={200} resizable>
+    User can drag bottom edge to resize
+  </Card>
+  
+  // Both directions (if height is set)
+  <Card width={400} height={300} resizable>
+    User can resize both dimensions
+  </Card>
+  ```
+- **Note:** The resize handle appears in the bottom-right corner; requires `height` prop for vertical resize
+
+### Accent Rail Props
+
+#### `accent` (optional)
+- **Type:** Boolean
+- **What it does:** Shows a colored rail on the left edge
+- **Default:** `false`
+- **When to use:** To categorize or highlight cards with color
+- **Example:**
+  ```tsx
+  <Card accent accentVariant="primary" header={<div>Important Card</div>}>
+    This card has a blue accent rail on the left
+  </Card>
+  ```
+
+#### `accentVariant` (optional)
+- **Type:** `"primary"` | `"secondary"` | `"success"` | `"warning"` | `"danger"` | `"info"`
+- **What it does:** Sets the color of the accent rail
+- **Default:** `"primary"`
+- **When to use with each variant:**
+  - **primary** — Default, general emphasis
+  - **secondary** — Alternative category
+  - **success** — Positive status (approved, completed)
+  - **warning** — Caution, pending actions
+  - **danger** — Errors, critical issues
+  - **info** — Informational, notices
+- **Examples:**
+  ```tsx
+  // Success card
+  <Card accent accentVariant="success" header={<div>Order Completed</div>}>
+    Your order has been shipped!
+  </Card>
+  
+  // Warning card
+  <Card accent accentVariant="warning" header={<div>Payment Due</div>}>
+    Payment is due in 3 days
+  </Card>
+  
+  // Danger card
+  <Card accent accentVariant="danger" header={<div>Account Suspended</div>}>
+    Please contact support
+  </Card>
+  
+  // All variants side by side
+  <div style={{ display: "grid", gap: "16px" }}>
+    <Card accent accentVariant="primary" header={<div>Primary</div>}>Content</Card>
+    <Card accent accentVariant="secondary" header={<div>Secondary</div>}>Content</Card>
+    <Card accent accentVariant="success" header={<div>Success</div>}>Content</Card>
+    <Card accent accentVariant="warning" header={<div>Warning</div>}>Content</Card>
+    <Card accent accentVariant="danger" header={<div>Danger</div>}>Content</Card>
+    <Card accent accentVariant="info" header={<div>Info</div>}>Content</Card>
+  </div>
+  ```
+
+#### `accentContent` (optional)
+- **Type:** React node
+- **What it does:** Content revealed when the accent rail expands (on hover/focus)
+- **When to use:** To add labels, icons, or short text that appears on interaction
+- **Examples:**
+  ```tsx
+  // Text label
+  <Card 
+    accent 
+    accentVariant="info"
+    accentContent={<div style={{ fontSize: "12px", fontWeight: 600 }}>NEW</div>}
+    header={<div>Latest Feature</div>}
+  >
+    Check out our newest addition!
+  </Card>
+  
+  // Icon
+  <Card
+    accent
+    accentVariant="warning"
+    accentContent={<span>⚠️</span>}
+    header={<div>Action Required</div>}
+  >
+    Please verify your email
+  </Card>
+  
+  // Priority indicator
+  <Card
+    accent
+    accentVariant="danger"
+    accentContent={<div>HIGH</div>}
+    header={<div>Critical Issue</div>}
+  >
+    Server is down
+  </Card>
+  ```
+- **Behavior:** Rail starts narrow (e.g., 4px), expands to wider (e.g., 48px) on hover/focus to reveal content
+
+---
+
+## CardThemeProvider — Customizing Appearance
+
+Use the theme provider to customize card styling across your app or specific sections.
+
+### Basic Usage
+
+```tsx
+import Card, { CardThemeProvider } from "@karya_app1/rain-js";
+
+function App() {
+  return (
+    <CardThemeProvider
+      theme={{
+        container: {
+          background: "#ffffff",
+          borderRadius: "12px",
+          padding: "20px"
+        }
+      }}
+    >
+      <Card header={<div>Themed Card</div>}>
+        All cards inside inherit this theme
+      </Card>
+    </CardThemeProvider>
+  );
+}
+```
+
+### Theme Structure
+
+```tsx
+interface CardTheme {
+  container: {
+    background: string;
+    color: string;
+    padding: string;
+    gap: string | number;
+    borderRadius: string;
+    border: string;
+    shadow: string;
+    width?: string | number;
+    maxWidth?: string | number;
+    height?: string | number;
+    mobileBreakpoint: number; // px
+    mobilePadding: string;
+  };
+  header: {
+    background?: string;
+    color?: string;
+    fontSize?: string;
+    fontWeight?: number | string;
+    padding?: string;
+    height?: string | number;
+  };
+  body: {
+    background?: string;
+    color?: string;
+    fontSize?: string;
+    fontWeight?: number | string;
+    padding?: string;
+  };
+  footer: {
+    background?: string;
+    color?: string;
+    fontSize?: string;
+    fontWeight?: number | string;
+    padding?: string;
+    height?: string | number;
+  };
+  divider: {
+    color: string;
+    thickness: string;
+    inset: string; // horizontal margin
+    style: "solid" | "dashed" | "dotted";
+  };
+  accent: {
+    enabled: boolean;
+    baseWidth: number; // px
+    expandedWidth: number; // px
+    transitionMs: number;
+    radius?: string;
+    shadow?: string;
+    padding: string;
+    variants: {
+      primary: { color: string; contentColor: string };
+      secondary: { color: string; contentColor: string };
+      success: { color: string; contentColor: string };
+      warning: { color: string; contentColor: string };
+      danger: { color: string; contentColor: string };
+      info: { color: string; contentColor: string };
+    };
+  };
+}
+```
+
+### Theme Properties Explained
+
+#### Container Properties
+
+**`container.background`**
+- **What it does:** Sets the card's background color
+- **Default:** `"#ffffff"`
+- **Example:**
+  ```tsx
+  <CardThemeProvider theme={{ container: { background: "#f9fafb" } }}>
+    <Card>Light gray background</Card>
+  </CardThemeProvider>
+  ```
+
+**`container.color`**
+- **What it does:** Sets the default text color
+- **Default:** `"#111827"`
+
+**`container.padding`**
+- **What it does:** Default padding for all sections
+- **Default:** `"16px"`
+- **Example:**
+  ```tsx
+  <CardThemeProvider theme={{ container: { padding: "24px" } }}>
+    <Card>More spacious card</Card>
+  </CardThemeProvider>
+  ```
+
+**`container.gap`**
+- **What it does:** Default spacing between sections when dividers are off
+- **Default:** `"12px"`
+
+**`container.borderRadius`**
+- **What it does:** Rounded corners
+- **Default:** `"8px"`
+
+**`container.border`**
+- **What it does:** Card border styling
+- **Default:** `"1px solid #e5e7eb"`
+
+**`container.shadow`**
+- **What it does:** Drop shadow
+- **Default:** `"0 1px 3px rgba(0,0,0,0.1)"`
+
+**`container.maxWidth`**
+- **What it does:** Default maximum width for all cards
+- **Default:** `"100%"`
+
+**`container.mobileBreakpoint`**
+- **What it does:** Screen width (in pixels) below which mobile padding applies
+- **Default:** `640`
+
+**`container.mobilePadding`**
+- **What it does:** Padding used on mobile screens
+- **Default:** `"12px"`
+
+#### Section Properties
+
+Each section (header, body, footer) supports:
+
+**`background`** — Section background color  
+**`color`** — Text color  
+**`fontSize`** — Font size  
+**`fontWeight`** — Font weight  
+**`padding`** — Section padding (overrides container padding)  
+**`height`** — Minimum height
+
+**Example:**
+```tsx
+<CardThemeProvider
+  theme={{
+    header: {
+      background: "#f3f4f6",
+      fontWeight: 700,
+      padding: "16px 20px"
+    },
+    footer: {
+      background: "#f9fafb",
+      fontSize: "14px"
+    }
+  }}
+>
+  <Card header={<div>Styled Header</div>} footer={<div>Styled Footer</div>}>
+    Content
+  </Card>
+</CardThemeProvider>
+```
+
+#### Divider Properties
+
+**`divider.color`**
+- **What it does:** Divider line color
+- **Default:** `"#e5e7eb"`
+
+**`divider.thickness`**
+- **What it does:** Divider line height
+- **Default:** `"1px"`
+
+**`divider.inset`**
+- **What it does:** Horizontal margin on divider (makes it not span full width)
+- **Default:** `"0"`
+- **Example:**
+  ```tsx
+  <CardThemeProvider theme={{ divider: { inset: "16px" } }}>
+    <Card showDividers>Dividers don't touch edges</Card>
+  </CardThemeProvider>
+  ```
+
+**`divider.style`**
+- **What it does:** Line style
+- **Options:** `"solid"`, `"dashed"`, `"dotted"`
+- **Default:** `"solid"`
+
+#### Accent Properties
+
+**`accent.enabled`**
+- **What it does:** Globally enables/disables accent rail feature
+- **Default:** `true`
+
+**`accent.baseWidth`**
+- **What it does:** Width of rail in collapsed state (pixels)
+- **Default:** `4`
+
+**`accent.expandedWidth`**
+- **What it does:** Width of rail when expanded on hover/focus (pixels)
+- **Default:** `48`
+
+**`accent.transitionMs`**
+- **What it does:** Animation duration for expand/collapse
+- **Default:** `200`
+
+**`accent.radius`**
+- **What it does:** Border radius for rail corners
+- **Default:** Inherits from `container.borderRadius`
+
+**`accent.padding`**
+- **What it does:** Padding for accent content
+- **Default:** `"8px"`
+
+**`accent.variants`**
+- **What it does:** Color configurations for each accent variant
+- **Each variant has:**
+  - `color` — Rail background color
+  - `contentColor` — Text color for accent content
+
+**Example:**
+```tsx
+<CardThemeProvider
+  theme={{
+    accent: {
+      baseWidth: 6,
+      expandedWidth: 60,
+      transitionMs: 300,
+      variants: {
+        primary: {
+          color: "#3b82f6",
+          contentColor: "#ffffff"
+        },
+        success: {
+          color: "#10b981",
+          contentColor: "#ffffff"
+        }
+      }
+    }
+  }}
+>
+  <Card accent accentVariant="primary">Custom accent styling</Card>
+</CardThemeProvider>
+```
+
+### Complete Theme Example
+
+```tsx
+<CardThemeProvider
+  theme={{
+    container: {
+      background: "#ffffff",
+      color: "#111827",
+      padding: "20px",
+      gap: 16,
+      borderRadius: "16px",
+      border: "1px solid #d1d5db",
+      shadow: "0 4px 6px rgba(0,0,0,0.1)",
+      maxWidth: 800,
+      mobileBreakpoint: 640,
+      mobilePadding: "16px"
+    },
+    header: {
+      background: "#f9fafb",
+      fontWeight: 700,
+      fontSize: "18px"
+    },
+    body: {
+      fontSize: "14px"
+    },
+    footer: {
+      background: "#f9fafb",
+      fontSize: "13px"
+    },
+    divider: {
+      color: "#e5e7eb",
+      thickness: "1px",
+      inset: "0",
+      style: "solid"
+    },
+    accent: {
+      enabled: true,
+      baseWidth: 4,
+      expandedWidth: 48,
+      transitionMs: 200,
+      variants: {
+        primary: { color: "#3b82f6", contentColor: "#ffffff" },
+        secondary: { color: "#8b5cf6", contentColor: "#ffffff" },
+        success: { color: "#10b981", contentColor: "#ffffff" },
+        warning: { color: "#f59e0b", contentColor: "#ffffff" },
+        danger: { color: "#ef4444", contentColor: "#ffffff" },
+        info: { color: "#06b6d4", contentColor: "#ffffff" }
+      }
+    }
+  }}
+>
+  {/* Your cards here */}
+</CardThemeProvider>
+```
+
+---
+
+## Common Examples
+
+### Profile Card
+
+```tsx
+<Card
+  header={
+    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <img src="avatar.jpg" alt="User" style={{ width: 40, height: 40, borderRadius: "50%" }} />
+      <div>
+        <div style={{ fontWeight: 600 }}>Jane Doe</div>
+        <div style={{ fontSize: "12px", color: "#666" }}>jane@example.com</div>
+      </div>
+    </div>
+  }
+  footer={
+    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+      <button>Edit</button>
+      <button>View Profile</button>
+    </div>
+  }
+>
+  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div><strong>Role:</strong> Administrator</div>
+    <div><strong>Joined:</strong> January 2024</div>
+    <div><strong>Location:</strong> San Francisco, CA</div>
+  </div>
+</Card>
+```
+
+### Dashboard Stat Card
+
+```tsx
+<Card
+  accent
+  accentVariant="success"
+  accentContent={<span>↑</span>}
+  header={<div style={{ fontSize: "14px", color: "#666" }}>Total Revenue</div>}
+  footer={<div style={{ fontSize: "12px", color: "#10b981" }}>+12% from last month</div>}
+  showDividers={false}
+  headerBodyGap={8}
+  bodyFooterGap={8}
+>
+  <div style={{ fontSize: "32px", fontWeight: 700 }}>$24,500</div>
+</Card>
+```
+
+### Form Card
+
+```tsx
+<Card
+  header={<h2>Sign Up</h2>}
+  footer={
+    <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+      <button>Cancel</button>
+      <button style={{ background: "#3b82f6", color: "#fff" }}>Create Account</button>
+    </div>
+  }
+  width={450}
+>
+  <form style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <input type="text" placeholder="Full Name" />
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password" />
+    <label>
+      <input type="checkbox" />
+      <span style={{ marginLeft: "8px" }}>I agree to the terms</span>
+    </label>
+  </form>
+</Card>
+```
+
+### Notification Card
+
+```tsx
+<Card
+  accent
+  accentVariant="warning"
+  accentContent={<span>!</span>}
+  header={
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span>System Maintenance</span>
+      <button style={{ border: "none", background: "transparent", cursor: "pointer" }}>×</button>
+    </div>
+  }
+  footer={<div style={{ fontSize: "12px", color: "#666" }}>Scheduled for: Tonight at 2 AM</div>}
+>
+  <p>Our services will be unavailable for approximately 2 hours during scheduled maintenance.</p>
+</Card>
+```
+
+### Resizable Dashboard Card
+
+```tsx
+<Card
+  header={
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span>Analytics</span>
+      <button>Refresh</button>
+    </div>
+  }
+  width={600}
+  height={400}
+  resizable
+>
+  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <p>Chart goes here. Drag bottom-right to resize.</p>
+  </div>
+</Card>
+```
+
+---
+
+## Accessibility
+
+The Card component is accessible by default:
+
+### ARIA Attributes
+- Dividers have `aria-hidden` since they're purely visual
+- Accent rail has `aria-hidden` since it's decorative
+
+### Best Practices
+
+```tsx
+// ✅ Good: Semantic header with heading
+<Card header={<h2>Section Title</h2>}>
+  Content
+</Card>
+
+// ❌ Bad: Non-semantic header
+<Card header={<div>Section Title</div>}>
+  Content
+</Card>
+
+// ✅ Good: Accessible action buttons
+<Card
+  footer={
+    <div>
+      <button aria-label="Close card">×</button>
+      <button>Save Changes</button>
+    </div>
+  }
+>
+  Content
+</Card>
+
+// ✅ Good: Proper form labels in card body
+<Card>
+  <label htmlFor="email-input">Email</label>
+  <input id="email-input" type="email" />
+</Card>
+```
+
+### Keyboard Navigation
+- All interactive elements (buttons, inputs) inside cards are keyboard accessible
+- Tab order follows natural document flow (header → body → footer)
+- Accent rail expansion works with `:focus-within` for keyboard users
+
+---
+
+## TypeScript
+
+The Card component is fully typed. Import types for custom components:
+
+```tsx
+import type { CardProps, CardAccentVariant } from "@karya_app1/rain-js";
+
+// Custom card wrapper
+const CustomCard: React.FC<CardProps> = (props) => {
+  return <Card {...props} />;
+};
+
+// Extend CardProps
+interface MyCardProps extends CardProps {
+  status?: "active" | "inactive";
+}
+
+const StatusCard: React.FC<MyCardProps> = ({ status, ...props }) => {
+  const accentVariant: CardAccentVariant = status === "active" ? "success" : "warning";
+  
+  return (
+    <Card 
+      {...props} 
+      accent 
+      accentVariant={accentVariant}
+    />
+  );
+};
+```
+
+---
+
+## Tips and Tricks
+
+### Card Grid Layouts
+
+```tsx
+<div style={{ 
+  display: "grid", 
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: "16px" 
+}}>
+  <Card header={<div>Card 1</div>}>Content</Card>
+  <Card header={<div>Card 2</div>}>Content</Card>
+  <Card header={<div>Card 3</div>}>Content</Card>
+</div>
+```
+
+### Animated Card Entry
+
+```tsx
+<Card
+  style={{
+    animation: "slideIn 0.3s ease"
+  }}
+>
+  Content
+</Card>
+
+<style>{`
+  @keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+`}</style>
+```
+
+### Conditional Sections
+
+```tsx
+function ConditionalCard({ showFooter }) {
+  return (
+    <Card
+      header={<div>Title</div>}
+      footer={showFooter ? <button>Action</button> : undefined}
+    >
+      Content
+    </Card>
+  );
+}
+```
+
+### Nested Cards
+
+```tsx
+<Card header={<div>Outer Card</div>}>
+  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <Card header={<div>Nested Card 1</div>}>
+      Inner content
+    </Card>
+    <Card header={<div>Nested Card 2</div>}>
+      Inner content
+    </Card>
+  </div>
+</Card>
+```
+
+---
+
+## Troubleshooting
+
+### Sections not showing
+- Make sure you're passing content to `header`, `children`, or `footer` props
+- Check that content is not `null` or `undefined`
+
+### Dividers not appearing
+- Verify `showDividers` is `true` (or not explicitly set to `false`)
+- Ensure both sections around the divider exist (e.g., both header and body for header divider)
+
+### Accent rail not expanding
+- Check that `accent={true}` is set
+- Verify hover/focus is working (test with `:hover` in DevTools)
+- Ensure `accent.enabled` is `true` in theme
+
+### Resizable not working
+- Must set `resizable={true}` prop
+- For vertical resize only, provide `height` prop
+- Some browsers may have resize disabled; check browser settings
+
+### Mobile padding not applying
+- Check that screen width is below `mobileBreakpoint` (default 640px)
+- Verify `mobilePadding` is set in theme
+- Test in responsive mode in browser DevTools
+
+---
+
+## Summary
+
+The Card component is a flexible container for organizing content:
+
+**Key Features:**
+- Three-section layout (header, body, footer)
+- Optional dividers with customizable styling
+- Accent rail with six color variants
+- Responsive padding for mobile
+- Resizable option for user control
+- Comprehensive theme system
+- TypeScript support
+- Accessible by default
+
+**Common Use Cases:**
+- Dashboard widgets and stat cards
+- Profile and user information cards
+- Form containers
+- Notification and alert boxes
+- Content previews
+- Settings panels
+
+**Best Practices:**
+- Use semantic HTML in header (h1-h6 tags)
+- Keep actions in footer for consistency
+- Use accent rails for status/category indication
+- Leverage theme provider for consistent styling
+- Consider mobile padding in responsive layouts

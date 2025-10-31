@@ -4,9 +4,28 @@ import type { TimePickerColorKey } from "../theme/timePickerTypes";
 import { parseTimeStr, timeToMinutes } from "../lib/dateUtils";
 import { Input } from "./Input";
 
+export type TimeSelectionDetail = {
+  /** 24-hour clock hours (0-23) */
+  hours24: number;
+  /** 12-hour clock hours (1-12) */
+  hours12: number;
+  /** Minutes (0-59) */
+  minutes: number;
+  /** Period for 12-hour clocks */
+  period: "AM" | "PM";
+  /** The Date object representing the selected time (includes today’s date unless a prior value provided) */
+  date: Date;
+  /** Human-readable formatted time string based on the current format prop */
+  formatted: string;
+};
+
 export interface TimePickerProps {
   value: Date | null;
-  onChange: (date: Date | null) => void;
+  /**
+   * Called when the time changes. The first argument is the Date (or null when cleared),
+   * and the second optional argument includes hours/minutes/period and a formatted string.
+   */
+  onChange: (date: Date | null, detail?: TimeSelectionDetail | null) => void;
   color?: TimePickerColorKey;
   size?: "small" | "medium" | "large";
   variant?: "outlined" | "filled" | "standard";
@@ -84,6 +103,20 @@ export function TimePicker({
   }, [open, inline]);
 
   const display = useMemo(() => (value ? formatDisplayTime(value, format) : ""), [value, format]);
+  const buildDetail = (d: Date): TimeSelectionDetail => {
+    const h24 = d.getHours();
+    const mins = d.getMinutes();
+    const period = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return {
+      hours24: h24,
+      hours12: h12,
+      minutes: mins,
+      period,
+      date: d,
+      formatted: formatDisplayTime(d, format)
+    };
+  };
 
   const panelStyle: React.CSSProperties = {
     position: inline ? "relative" : "absolute",
@@ -168,7 +201,7 @@ export function TimePicker({
     } else {
       base.setHours(h, m, 0, 0);
     }
-    onChange(base);
+    onChange(base, buildDetail(base));
     if (!inline) setOpen(false);
   };
 
@@ -207,10 +240,10 @@ export function TimePicker({
             {(clearable || showNow) && (
               <div style={{ display: "flex", gap: 8 }}>
                 {clearable && (
-                  <button type="button" onClick={() => onChange(null)} style={{ border: "none", background: "transparent", color: theme.surface.mutedText, cursor: "pointer" }}>Clear</button>
+                  <button type="button" onClick={() => onChange(null, null)} style={{ border: "none", background: "transparent", color: theme.surface.mutedText, cursor: "pointer" }}>Clear</button>
                 )}
                 {showNow && (
-                  <button type="button" onClick={() => onChange(new Date())} style={{ border: `1px solid ${c.border}`, background: c.main, color: "#fff", borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}>Now</button>
+                  <button type="button" onClick={() => { const now = new Date(); onChange(now, buildDetail(now)); }} style={{ border: `1px solid ${c.border}`, background: c.main, color: "#fff", borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}>Now</button>
                 )}
               </div>
             )}
@@ -234,7 +267,7 @@ export function TimePicker({
                     aria-disabled={disabledCell}
                     aria-pressed={selected}
                     style={{ ...itemStyle, color: disabledCell ? `${theme.surface.mutedText}88` : theme.surface.headerText, background: selected ? `${c.main}22` : "transparent" }}
-                    onClick={() => {
+                      onClick={() => {
                       if (disabledCell) return;
                       const m = selectedM ?? 0;
                       pick(actualH, m);
@@ -287,7 +320,7 @@ export function TimePicker({
                         const base = value ? new Date(value) : new Date();
                         const hr = base.getHours() % 12 + (isPM ? 12 : 0);
                         base.setHours(hr);
-                        onChange(base);
+                        onChange(base, buildDetail(base));
                         if (!inline) setOpen(false);
                       }}
                       onMouseEnter={(e) => { if (!selected) (e.currentTarget as HTMLDivElement).style.background = `${c.main}14`; }}

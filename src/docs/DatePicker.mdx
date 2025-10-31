@@ -62,7 +62,9 @@ function App() {
 ### 1. **Controlled component pattern**
 DatePicker requires `value` and `onChange` props:
 - `value` — The currently selected date (Date object) or null if nothing selected
-- `onChange` — Function called when user selects a date, receives the new Date or null
+- `onChange` — Function called when the user selects or clears a date. It receives:
+  - `date: Date | null` — The new Date object (or null when cleared)
+  - `detail?: DateSelectionDetail | null` — A structured payload with `day`, `month`, `year`, and convenience fields
 
 ### 2. **Calendar grid interface**
 When opened, shows:
@@ -94,10 +96,20 @@ Works seamlessly with validation:
 All the props you can pass to the DatePicker component:
 
 ```tsx
+// Additional detail returned by onChange as the 2nd parameter
+interface DateSelectionDetail {
+  day: number;       // 1..31
+  month: number;     // 1..12
+  year: number;      // full year, e.g., 2025
+  iso?: string;      // YYYY-MM-DD convenience string
+  jsDate?: Date;     // original JS Date for utilities/back-compat
+}
+
 interface DatePickerProps {
   // Required
   value: Date | null;
-  onChange: (date: Date | null) => void;
+  // onChange now optionally provides a structured detail payload
+  onChange: (date: Date | null, detail?: DateSelectionDetail | null) => void;
   
   // Styling
   color?: "primary" | "secondary" | "success" | "error" | "warning" | "info";
@@ -159,34 +171,69 @@ interface DatePickerProps {
   ```
 
 #### `onChange` (required)
-- **Type:** `(date: Date | null) => void`
-- **What it does:** Called when user selects or clears a date
+- **Type:** `(date: Date | null, detail?: DateSelectionDetail | null) => void`
+- **What it does:** Called when the user selects a date or clears the value
 - **Parameters:**
   - `date` — The newly selected Date object, or null if cleared
+  - `detail` — Optional structured info with `day`, `month`, `year`, plus `iso` and `jsDate`
 - **Examples:**
   ```tsx
-  // Basic state update
+  // Basic state update (works the same)
   const [date, setDate] = useState<Date | null>(null);
   <DatePicker value={date} onChange={setDate} />
   
-  // With side effects
-  const handleDateChange = (newDate: Date | null) => {
+  // With detail information
+  import type { DateSelectionDetail } from "@karya_app1/rain-js";
+  const handleDateChange = (newDate: Date | null, detail?: DateSelectionDetail | null) => {
     setDate(newDate);
-    console.log("Date changed to:", newDate);
-    
-    // Maybe trigger an API call
-    if (newDate) {
-      fetchData(newDate);
+    if (detail) {
+      console.log(`Selected: ${detail.day}-${detail.month}-${detail.year}`);
+      console.log("ISO:", detail.iso);
     }
   };
   <DatePicker value={date} onChange={handleDateChange} />
   
-  // Form integration
-  const handleDateChange = (newDate: Date | null) => {
-    setFormData(prev => ({ ...prev, birthdate: newDate }));
+  // Form integration (store just parts)
+  const handleBirthDate = (_: Date | null, detail?: DateSelectionDetail | null) => {
+    setFormData(prev => ({
+      ...prev,
+      birthdate: detail ? { d: detail.day, m: detail.month, y: detail.year } : null
+    }));
   };
-  <DatePicker value={formData.birthdate} onChange={handleDateChange} />
+  <DatePicker value={formData.birthdateDate ?? null} onChange={handleBirthDate} />
   ```
+
+##### Notes
+- When cleared, the component calls `onChange(null, null)`.
+- The first parameter remains a `Date | null` for backward compatibility.
+- `detail.iso` is a convenience string in the `YYYY-MM-DD` format.
+
+### onChange detail parameter
+
+The `onChange` callback’s second argument helps you avoid re-parsing the date.
+
+```tsx
+import type { DateSelectionDetail } from "@karya_app1/rain-js";
+
+function Example() {
+  const [val, setVal] = useState<Date | null>(null);
+  const [info, setInfo] = useState<DateSelectionDetail | null>(null);
+
+  return (
+    <>
+      <DatePicker
+        value={val}
+        onChange={(date, detail) => {
+          setVal(date);
+          setInfo(detail ?? null);
+        }}
+        label="Meeting date"
+      />
+      <pre>{JSON.stringify(info, null, 2)}</pre>
+    </>
+  );
+}
+```
 
 ### Styling Props
 

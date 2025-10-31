@@ -73,3 +73,29 @@ export const Themed: Story = {
     );
   }
 };
+
+export const OnChangeDetail: Story = {
+  name: "onChange with detail",
+  render: (args) => {
+    const [val, setVal] = useState<Date | null>(null);
+    const [detail, setDetail] = useState<any>(null);
+    return (
+      <div style={{ display: "grid", gap: 12 }}>
+        <TimePicker
+          {...args}
+          format="12h"
+          value={val}
+          onChange={(d, info) => {
+            setVal(d);
+            setDetail(info);
+          }}
+          label="Pick time"
+        />
+        <div style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace", fontSize: 12, color: "#334155" }}>
+          <div><strong>Date value:</strong> {val ? val.toString() : "null"}</div>
+          <div><strong>Detail:</strong> {detail ? JSON.stringify(detail, null, 2) : "null"}</div>
+        </div>
+      </div>
+    );
+  }
+};

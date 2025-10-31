@@ -74,3 +74,27 @@ export const Themed: Story = {
     );
   }
 };
+
+export const WithDetail: Story = {
+  render: (args) => {
+    const [val, setVal] = useState<Date | null>(null);
+    const [detail, setDetail] = useState<{ day?: number; month?: number; year?: number; iso?: string } | null>(null);
+    return (
+      <div style={{ display: "grid", gap: 12 }}>
+        <DatePicker
+          {...args}
+          value={val}
+          onChange={(date, d) => {
+            setVal(date ?? null);
+            setDetail(d ?? null);
+          }}
+          label="Pick a date (shows detail)"
+        />
+        <div style={{ fontSize: 14, color: "#374151" }}>
+          <div><strong>Selected JS Date:</strong> {val ? val.toString() : "None"}</div>
+          <div><strong>Detail:</strong> {detail ? `${detail.day}-${detail.month}-${detail.year} ${detail.iso ? `(ISO: ${detail.iso})` : ""}` : "None"}</div>
+        </div>
+      </div>
+    );
+  }
+};

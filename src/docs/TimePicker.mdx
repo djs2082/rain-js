@@ -1,0 +1,210 @@
+import { Meta } from "@storybook/blocks";
+import { TimePicker } from "../components/TimePicker";
+import { TimePickerThemeProvider } from "../theme/timePickerProvider";
+
+<Meta title="Docs/TimePicker" />
+
+# TimePicker — Complete Guide
+
+A flexible, themeable time selection component with 12h/24h modes, minute stepping, constraints, and inline or popup display.
+
+- 12-hour and 24-hour formats
+- Minute step control (e.g., every 5 minutes)
+- Min/max time constraints and custom disabled logic
+- Inline or popup mode
+- Clear and Now quick actions
+- Fully themeable, accessible, and typed
+
+---
+
+## Quick start
+
+```tsx
+import { TimePicker } from "@karya_app1/rain-js";
+import { useState } from "react";
+
+function App() {
+  const [time, setTime] = useState<Date | null>(null);
+  return (
+    <TimePicker value={time} onChange={setTime} label="Pick a time" />
+  );
+}
+```
+
+---
+
+## Core concepts
+
+- Controlled component: pass `value: Date | null` and `onChange`.
+- Display format: `format="12h" | "24h"` controls how the time shows.
+- Minute step: `minuteStep={5}` renders minutes at the given granularity.
+- Constraints: `minTime`, `maxTime` as HH:mm strings and `disabledTimes(h, m)`.
+- Modes: popup (default) or `inline`.
+
+---
+
+## API reference — TimePickerProps
+
+```ts
+interface TimeSelectionDetail {
+  hours24: number; // 0-23
+  hours12: number; // 1-12
+  minutes: number; // 0-59
+  period: "AM" | "PM"; // for 12h format
+  date: Date; // resolved date carrying the selected time
+  formatted: string; // formatted display based on format prop
+}
+
+interface TimePickerProps {
+  value: Date | null;
+  // onChange now provides an optional 2nd parameter with granular details
+  onChange: (date: Date | null, detail?: TimeSelectionDetail | null) => void;
+  color?: "primary" | "secondary" | "success" | "error" | "warning" | "info";
+  size?: "small" | "medium" | "large";
+  variant?: "outlined" | "filled" | "standard";
+  placeholder?: string;
+  format?: "12h" | "24h";
+  minuteStep?: number;
+  minTime?: string; // "HH:mm"
+  maxTime?: string; // "HH:mm"
+  disabledTimes?: (h: number, m: number) => boolean;
+  inline?: boolean;
+  disabled?: boolean;
+  clearable?: boolean;
+  showNow?: boolean;
+  fullWidth?: boolean;
+  label?: string;
+  floatingLabel?: boolean;
+  error?: boolean;
+  helperText?: string;
+  required?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+```
+
+### onChange detail parameter
+
+The `onChange` callback receives a second optional argument with parsed time parts. This makes it easy to consume hours/minutes/period without re-parsing the Date.
+
+```tsx
+import type { TimeSelectionDetail } from "@karya_app1/rain-js";
+
+function Example() {
+  const [val, setVal] = useState<Date | null>(null);
+  const [info, setInfo] = useState<TimeSelectionDetail | null>(null);
+
+  return (
+    <>
+      <TimePicker
+        value={val}
+        format="12h"
+        onChange={(date, detail) => {
+          setVal(date);
+          setInfo(detail ?? null);
+        }}
+        label="Meeting time"
+      />
+      <pre>{JSON.stringify(info, null, 2)}</pre>
+    </>
+  );
+}
+```
+
+Notes:
+- When cleared, `onChange(null, null)` is fired.
+- The `formatted` field mirrors the current `format` prop.
+
+---
+
+## Constraints
+
+- `minTime` and `maxTime` use 24h strings, e.g., `"09:00"`, `"18:30"`.
+- `disabledTimes(h, m)` lets you block specific hour/minute combinations.
+
+```tsx
+<TimePicker
+  value={time}
+  onChange={setTime}
+  minTime="09:00"
+  maxTime="17:30"
+  disabledTimes={(h, m) => (h === 12 && m >= 0 && m <= 30)} // block lunch 12:00-12:30
+/>
+```
+
+---
+
+## Theming
+
+Wrap with `TimePickerThemeProvider` to customize colors, sizes, and surfaces.
+
+```tsx
+<TimePickerThemeProvider
+  theme={{
+    colors: {
+      primary: { main: "#3b82f6", hover: "#2563eb", text: "#0f172a", border: "#93c5fd", focus: "#3b82f6" }
+    }
+  }}
+>
+  <TimePicker value={time} onChange={setTime} color="primary" />
+</TimePickerThemeProvider>
+```
+
+---
+
+## Accessibility
+
+- Input has `aria-haspopup="dialog"`, `aria-expanded`, and `aria-controls` when in popup mode.
+- The panel uses `role="dialog"` and supports keyboard navigation in the list columns.
+- Labels, helper text, and error states mirror the Input component for consistency.
+
+---
+
+## TypeScript tips
+
+```ts
+import type { TimePickerProps, TimeSelectionDetail } from "@karya_app1/rain-js";
+
+const handler: TimePickerProps["onChange"] = (date, detail) => {
+  if (date && detail) {
+    console.log(detail.hours24, detail.minutes, detail.period);
+  }
+};
+```
+
+---
+
+## Common examples
+
+### 12h vs 24h
+
+```tsx
+<div style={{ display: "flex", gap: 16 }}>
+  <TimePicker value={t1} onChange={setT1} format="12h" label="12-hour" />
+  <TimePicker value={t2} onChange={setT2} format="24h" label="24-hour" />
+</div>
+```
+
+### Inline panel
+
+```tsx
+<TimePicker value={t} onChange={setT} inline clearable={false} />
+```
+
+### Form validation state
+
+```tsx
+<TimePicker
+  value={t}
+  onChange={setT}
+  required
+  error={!t}
+  helperText={!t ? "Time is required" : ""}
+/>
+```
+
+---
+
+## Summary
+
+TimePicker provides a clean, accessible way to choose times with rich theming, guardrails, and a developer-friendly `onChange` that exposes the parsed parts you often need.

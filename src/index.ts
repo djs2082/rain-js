@@ -24,6 +24,8 @@ export * from "./components/PriorityBadge";
 export * from "./components/PriorityBadge";
 export * from "./components/DatePicker";
 export * from "./components/TimePicker";
+export type { TimeSelectionDetail } from "./components/TimePicker";
+export type { DateSelectionDetail } from "./components/DatePicker";
 
 // Styles (optional if you want to auto-include base theme)
 import "./styles/variables.css";

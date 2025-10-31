@@ -4,9 +4,26 @@ import type { DatePickerColorKey } from "../theme/datePickerTypes";
 import { getMonthMatrix, getWeekdayLabels, isSameDay, toDisplayString, toMonthLabel } from "../lib/dateUtils";
 import { Input } from "./Input";
 
+export type DateSelectionDetail = {
+  /** day of month: 1..31 */
+  day: number;
+  /** month number: 1..12 */
+  month: number;
+  /** full year, e.g., 2025 */
+  year: number;
+  /** ISO date string YYYY-MM-DD for convenience */
+  iso?: string;
+  /** Original JS Date for backward-compatibility utilities */
+  jsDate?: Date;
+};
+
 export interface DatePickerProps {
   value: Date | null;
-  onChange: (date: Date | null) => void;
+  /**
+   * onChange receives the selected date as a JS Date (1st parameter) for backward compatibility,
+   * and a structured detail (2nd parameter) with day/month/year. Pass null when cleared.
+   */
+  onChange: (date: Date | null, detail?: DateSelectionDetail | null) => void;
   color?: DatePickerColorKey;
   size?: "small" | "medium" | "large";
   variant?: "outlined" | "filled" | "standard";
@@ -97,7 +114,15 @@ export function DatePicker({
 
   const selectDate = (d: Date) => {
     if (isDisabled(d)) return;
-    onChange(new Date(d));
+    const js = new Date(d);
+    const detail: DateSelectionDetail = {
+      day: js.getDate(),
+      month: js.getMonth() + 1,
+      year: js.getFullYear(),
+      iso: js.toISOString().slice(0, 10),
+      jsDate: js
+    };
+    onChange(js, detail);
     if (!inline) setOpen(false);
   };
 
@@ -256,7 +281,7 @@ export function DatePicker({
           {(clearable || showToday) && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: s.padding, borderTop: `1px solid ${theme.surface.border}` }}>
               {clearable ? (
-                <button type="button" onClick={() => onChange(null)} style={{ border: "none", background: "transparent", color: theme.surface.mutedText, cursor: "pointer" }}>Clear</button>
+                <button type="button" onClick={() => onChange(null, null)} style={{ border: "none", background: "transparent", color: theme.surface.mutedText, cursor: "pointer" }}>Clear</button>
               ) : <span />}
               {showToday && (
                 <button type="button" onClick={() => selectDate(new Date())} style={{ border: `1px solid ${c.border}`, background: c.main, color: "#fff", borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}>Today</button>

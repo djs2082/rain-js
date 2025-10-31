@@ -1,9 +1,9 @@
 import React from "react";
 import type { InputProps } from "../components/Input";
 import { Input as DefaultInput } from "../components/Input";
-import type { DatePickerProps } from "../components/DatePicker";
+import type { DatePickerProps, DateSelectionDetail } from "../components/DatePicker";
 import { DatePicker as DefaultDatePicker } from "../components/DatePicker";
-import type { TimePickerProps } from "../components/TimePicker";
+import type { TimePickerProps, TimeSelectionDetail } from "../components/TimePicker";
 import { TimePicker as DefaultTimePicker } from "../components/TimePicker";
 import type { ButtonProps } from "../components/Button";
 import { Button as DefaultButton } from "../components/Button";
@@ -177,13 +177,55 @@ export function useDynamicForm<
   );
 
   const handleDateChange = React.useCallback(
-    (name: keyof TValues & string) => (d: Date | null) => {
-      setValue(name, d);
+    (name: keyof TValues & string) => (d: Date | null, detail?: DateSelectionDetail | null) => {
+      if (!d && !detail) {
+        setValue(name, null as any);
+        return;
+      }
+      // Prefer constructing a local Date from the structured detail when available
+      let computed: Date | null = null;
+      if (detail) {
+        const y = detail.year;
+        const m = (detail.month ?? 1) - 1; // month is 1-based in detail
+        const day = detail.day;
+        // Construct local midnight to avoid timezone surprises
+        computed = new Date(y, m, day, 0, 0, 0, 0);
+      } else {
+        computed = d ?? null;
+      }
+      setValue(name, computed as any);
     },
     [setValue]
   );
 
-  const handleTimeChange = handleDateChange;
+  const handleTimeChange = React.useCallback(
+    (name: keyof TValues & string) => (d: Date | null, detail?: TimeSelectionDetail | null) => {
+      if (!d && !detail) {
+        setValue(name, null as any);
+        return;
+      }
+      let computed: Date | null = null;
+      if (detail) {
+        // Build a Date in the local timezone using today's date by default
+        const base = new Date();
+        // Derive 24h hours
+        let h24 = typeof detail.hours24 === "number" ? detail.hours24 : undefined;
+        if (h24 === undefined) {
+          const h12 = detail.hours12;
+          const isPM = detail.period === "PM";
+          const raw = h12 % 12;
+          h24 = raw + (isPM ? 12 : 0);
+        }
+        const mins = detail.minutes ?? 0;
+        base.setHours(h24, mins, 0, 0);
+        computed = base;
+      } else {
+        computed = d ?? null;
+      }
+      setValue(name, computed as any);
+    },
+    [setValue]
+  );
 
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
